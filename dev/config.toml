@@ -1,0 +1,18 @@
+[server]
+listen_addr = "0.0.0.0:9000"
+advertise_addr = "127.0.0.1:9000"
+
+[database]
+host = "127.0.0.1"
+port = 5432
+username = "app"
+password = "YSm*wF60c72CLJD!"
+database_name = "vulnfeed"
+
+[telemetry.logs.file]
+filter = "INFO"
+dir = "logs"
+max_files = 64
+
+[telemetry.logs.stderr]
+filter = "INFO"
