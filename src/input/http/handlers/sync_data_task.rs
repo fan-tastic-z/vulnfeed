@@ -67,7 +67,7 @@ impl From<ParseCreateSyncDataTaskRequestBodyError> for ApiError {
 }
 
 #[handler]
-pub async fn create_sync_data_task<S: VulnService + Send + Sync + 'static>(
+pub async fn create_or_update_sync_data_task<S: VulnService + Send + Sync + 'static>(
     state: Data<&Ctx<S>>,
     Json(body): Json<CreateSyncDataTaskHttpRequestBody>,
 ) -> Result<ApiSuccess<CreateSyncDataTaskHttpResponseData>, ApiError> {

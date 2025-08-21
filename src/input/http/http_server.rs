@@ -117,7 +117,7 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
             "/sync_data_task",
             Route::new().at(
                 "",
-                post(sync_data_task::create_sync_data_task::<S>::default()),
+                post(sync_data_task::create_or_update_sync_data_task::<S>::default()),
             ),
         ),
     )
