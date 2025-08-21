@@ -1,7 +1,8 @@
+pub mod http_client;
 pub mod runtime;
-pub mod version;
 pub mod styled;
 pub mod telemetry;
+pub mod version;
 
 #[track_caller]
 pub fn num_cpus() -> std::num::NonZeroUsize {

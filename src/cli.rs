@@ -1,16 +1,34 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
+use crate::{
+    config::settings::{Config, LoadConfigResult, load_config},
+    domain::{
+        models::vuln_information::CreateVulnInformation, ports::VulnService, services::Service,
+    },
+    errors::Error,
+    input::http::http_server::{self, make_acceptor_and_advertise_addr},
+    output::{db::pg::Pg, plugins, scheduler::Scheduler, worker::worker::Worker},
+    utils::{
+        num_cpus,
+        runtime::{Runtime, make_runtime},
+        telemetry,
+    },
+};
 use clap::ValueHint;
 use error_stack::{Result, ResultExt};
-use crate::{config::settings::{load_config, Config, LoadConfigResult}, errors::Error, input::http::http_server::{self, make_acceptor_and_advertise_addr}, utils::{num_cpus, runtime::{make_runtime, Runtime}, telemetry}};
 
+#[derive(Clone)]
+pub struct Ctx<S: VulnService + Send + Sync + 'static> {
+    pub vuln_service: Arc<S>,
+    pub config: Arc<Config>,
+    pub sched: Arc<Scheduler>,
+}
 
 #[derive(Debug, clap::Parser)]
 pub struct CommandStart {
     #[clap(short, long, help = "Path to config file", value_hint = ValueHint::FilePath)]
     config_file: PathBuf,
 }
-
 
 impl CommandStart {
     pub fn run(self) -> Result<(), Error> {
@@ -38,7 +56,27 @@ async fn run_server(server_rt: &Runtime, config: Config) -> Result<(), Error> {
     )
     .await
     .change_context_lazy(make_error)?;
-    let server = http_server::start_server(server_rt, shutdown_rx, acceptor, advertise_addr)
+
+    let db = Pg::new(&config).await.change_context_lazy(make_error)?;
+    let (sender, receiver) = mea::mpsc::unbounded::<CreateVulnInformation>();
+    plugins::init(sender).change_context_lazy(make_error)?;
+
+    let mut worker = Worker::new(receiver, db.clone());
+    server_rt.spawn(async move { worker.run().await });
+
+    let sched = Scheduler::try_new(db.clone())
+        .await
+        .change_context_lazy(make_error)?;
+
+    let sched = sched.init_from_db().await.change_context_lazy(make_error)?;
+    let vuln_service = Service::new(db);
+    let ctx = Ctx {
+        vuln_service: Arc::new(vuln_service),
+        config: Arc::new(config),
+        sched: Arc::new(sched),
+    };
+
+    let server = http_server::start_server(ctx, server_rt, shutdown_rx, acceptor, advertise_addr)
         .await
         .change_context_lazy(|| {
             Error::Message("A fatal error has occurred in server process.".to_string())
@@ -51,7 +89,6 @@ async fn run_server(server_rt: &Runtime, config: Config) -> Result<(), Error> {
     server.await_shutdown().await;
     Ok(())
 }
-
 
 fn make_vulnfeed_runtime() -> Runtime {
     let parallelism = num_cpus().get();

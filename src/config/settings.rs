@@ -15,7 +15,7 @@ pub struct LoadConfigResult {
 pub fn load_config(config_file: PathBuf) -> Result<LoadConfigResult, Error> {
     let content = std::fs::read_to_string(&config_file).change_context_lazy(|| {
         Error::Message(format!(
-            "failed to read config file: {}",
+            "failed to read config file {}",
             config_file.display()
         ))
     })?;
@@ -250,7 +250,6 @@ pub const fn known_option_entries() -> &'static [OptionEntry] {
 fn default_listen_addr() -> String {
     "0.0.0.0:9000".to_string()
 }
-
 
 fn default_database_host() -> String {
     "localhost".to_string()

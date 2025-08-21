@@ -1,12 +1,20 @@
 use std::{io, net::SocketAddr, time::Duration};
 
 use mea::{shutdown::ShutdownRecv, waitgroup::WaitGroup};
-use poem::{listener::{Acceptor, Listener, TcpAcceptor, TcpListener}, Route};
+use poem::{
+    Endpoint, EndpointExt, Route,
+    listener::{Acceptor, Listener, TcpAcceptor, TcpListener},
+    post,
+};
 
-use crate::utils::runtime::{self, Runtime};
+use crate::{
+    cli::Ctx,
+    domain::ports::VulnService,
+    input::http::handlers::sync_data_task,
+    utils::runtime::{self, Runtime},
+};
 
 pub(crate) type ServerFuture<T> = runtime::JoinHandle<Result<T, io::Error>>;
-
 
 #[derive(Debug)]
 pub struct ServerState {
@@ -29,7 +37,6 @@ impl ServerState {
         }
     }
 }
-
 
 pub async fn make_acceptor_and_advertise_addr(
     listen_addr: &str,
@@ -66,19 +73,21 @@ pub async fn make_acceptor_and_advertise_addr(
     Ok((acceptor, advertise_addr))
 }
 
-
-pub async fn start_server(
+pub async fn start_server<S: VulnService + Send + Sync + 'static>(
+    ctx: Ctx<S>,
     rt: &Runtime,
     shutdown_rx: ShutdownRecv,
     acceptor: TcpAcceptor,
     advertise_addr: SocketAddr,
-) -> Result<ServerState, io::Error>{
+) -> Result<ServerState, io::Error> {
     let wg = WaitGroup::new();
     let shutdown_rx_server = shutdown_rx;
     let server_fut = {
         let wg_clone = wg.clone();
         let shutdown_clone = shutdown_rx_server.clone();
-        let route = Route::new();
+        let route = Route::new()
+            .nest("/api", api_routes::<S>())
+            .data(ctx.clone());
         let listen_addr = acceptor.local_addr()[0].clone();
         let signal = async move {
             log::info!("server has started on [{listen_addr}]");
@@ -99,4 +108,17 @@ pub async fn start_server(
         server_fut,
         shutdown_rx_server,
     })
+}
+
+fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
+    Route::new().nest(
+        "/",
+        Route::new().nest(
+            "/sync_data_task",
+            Route::new().at(
+                "",
+                post(sync_data_task::create_sync_data_task::<S>::default()),
+            ),
+        ),
+    )
 }

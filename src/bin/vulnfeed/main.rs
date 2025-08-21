@@ -1,8 +1,10 @@
 use clap::Parser;
-use vulnfeed::{cli, errors::Error, utils::{styled::styled, version::version}};
 use error_stack::Result;
-
-
+use vulnfeed::{
+    cli,
+    errors::Error,
+    utils::{styled::styled, version::version},
+};
 
 #[derive(Debug, clap::Parser)]
 #[command(name = "vulnfeed", version, long_version = version(), styles=styled())]
@@ -23,8 +25,6 @@ impl Command {
 enum SubCommand {
     Server(cli::CommandStart),
 }
-
-
 
 fn main() -> Result<(), Error> {
     let cmd = Command::parse();
