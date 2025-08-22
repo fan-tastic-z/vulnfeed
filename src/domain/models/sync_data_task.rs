@@ -10,6 +10,7 @@ pub struct SyncDataTask {
     pub name: String,
     pub interval_minutes: i32,
     pub status: bool,
+    pub job_id: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -19,6 +20,7 @@ pub struct CreateSyncDataTaskRequest {
     pub name: SyncDataTaskName,
     pub interval_minutes: SyncDataTaskIntervalMinutes,
     pub status: bool,
+    pub job_id: Option<String>,
 }
 
 impl CreateSyncDataTaskRequest {
@@ -31,6 +33,7 @@ impl CreateSyncDataTaskRequest {
             name,
             interval_minutes,
             status,
+            job_id: None,
         }
     }
 }
@@ -52,7 +55,7 @@ impl From<SyncDataTaskName> for Value {
 }
 
 #[nutype(
-    validate(greater_or_equal = 10, less_or_equal = 60),
+    validate(greater_or_equal = 1, less_or_equal = 60),
     derive(
         Clone, Debug, Display, PartialEq, Eq, PartialOrd, Ord, Hash, AsRef, Deref, Borrow, TryFrom,
         Serialize

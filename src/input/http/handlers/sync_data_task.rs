@@ -10,7 +10,7 @@ use crate::{
     cli::Ctx,
     domain::{
         models::sync_data_task::{
-            CreateSyncDataTaskRequest, SyncDataTaskIntervalMinutes,
+            CreateSyncDataTaskRequest, SyncDataTask, SyncDataTaskIntervalMinutes,
             SyncDataTaskIntervalMinutesError, SyncDataTaskName, SyncDataTaskNameError,
         },
         ports::VulnService,
@@ -35,6 +35,7 @@ impl CreateSyncDataTaskHttpRequestBody {
             name,
             interval_minutes,
             status: self.status,
+            job_id: None,
         })
     }
 }
@@ -72,15 +73,45 @@ pub async fn create_or_update_sync_data_task<S: VulnService + Send + Sync + 'sta
     Json(body): Json<CreateSyncDataTaskHttpRequestBody>,
 ) -> Result<ApiSuccess<CreateSyncDataTaskHttpResponseData>, ApiError> {
     let req = body.try_into_domain()?;
-    state
+    let id = state
         .vuln_service
         .create_sync_data_task(req)
         .await
+        .map_err(ApiError::from)?;
+    state.sched.update(id).await?;
+    Ok(ApiSuccess::new(
+        StatusCode::OK,
+        CreateSyncDataTaskHttpResponseData { id },
+    ))
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct GetSyncDataTaskHttpResponseData {
+    pub id: i64,
+    pub name: String,
+    pub interval_minutes: i32,
+    pub status: bool,
+}
+
+impl From<SyncDataTask> for GetSyncDataTaskHttpResponseData {
+    fn from(sync_data_task: SyncDataTask) -> Self {
+        GetSyncDataTaskHttpResponseData {
+            id: sync_data_task.id,
+            name: sync_data_task.name.to_string(),
+            interval_minutes: sync_data_task.interval_minutes,
+            status: sync_data_task.status,
+        }
+    }
+}
+
+#[handler]
+pub async fn get_sync_data_task<S: VulnService + Send + Sync + 'static>(
+    state: Data<&Ctx<S>>,
+) -> Result<ApiSuccess<Option<GetSyncDataTaskHttpResponseData>>, ApiError> {
+    state
+        .vuln_service
+        .get_sync_data_task()
+        .await
         .map_err(ApiError::from)
-        .map(|id| {
-            ApiSuccess::new(
-                StatusCode::CREATED,
-                CreateSyncDataTaskHttpResponseData { id },
-            )
-        })
+        .map(|data| ApiSuccess::new(StatusCode::OK, data.map(Into::into)))
 }

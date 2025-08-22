@@ -1,6 +1,6 @@
 use crate::{
     domain::{
-        models::sync_data_task::CreateSyncDataTaskRequest,
+        models::sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
         ports::{VulnRepository, VulnService},
     },
     errors::Error,
@@ -30,6 +30,11 @@ where
 {
     async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
         let ret = self.repo.create_sync_data_task(req).await?;
+        Ok(ret)
+    }
+
+    async fn get_sync_data_task(&self) -> Result<Option<SyncDataTask>, Error> {
+        let ret = self.repo.get_sync_data_task().await?;
         Ok(ret)
     }
 }
