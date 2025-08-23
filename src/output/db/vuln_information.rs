@@ -2,9 +2,12 @@ use error_stack::Result;
 use sqlx::{Postgres, Transaction};
 
 use crate::{
-    domain::models::vuln_information::{CreateVulnInformation, VulnInformation},
+    domain::models::{
+        page_utils::PageFilter,
+        vuln_information::{CreateVulnInformation, VulnInformation},
+    },
     errors::Error,
-    output::db::base::{Dao, dao_create, dao_fetch_by_column, dao_update},
+    output::db::base::{Dao, DaoQueryBuilder, dao_create, dao_fetch_by_column, dao_update},
 };
 
 const REASON_NEW_CREATED: &str = "漏洞创建";
@@ -96,5 +99,28 @@ impl VulnInformationDao {
             dao_create::<Self, _>(tx, req).await?;
             Ok(())
         }
+    }
+
+    pub async fn filter_vulnfusion_information(
+        tx: &mut Transaction<'_, Postgres>,
+        page_filter: &PageFilter,
+    ) -> Result<Vec<VulnInformation>, Error> {
+        let query_builder = DaoQueryBuilder::<Self>::new();
+        let page_no = *page_filter.page_no().as_ref();
+        let page_size = *page_filter.page_size().as_ref();
+        let offset = (page_no - 1) * page_size;
+
+        query_builder
+            .order_by_desc("id")
+            .limit_offset(page_size as i64, offset as i64)
+            .fetch_all(tx)
+            .await
+    }
+
+    pub async fn filter_vulnfusion_information_count(
+        tx: &mut Transaction<'_, Postgres>,
+    ) -> Result<i64, Error> {
+        let query_builder = DaoQueryBuilder::<Self>::new();
+        query_builder.count(tx).await
     }
 }

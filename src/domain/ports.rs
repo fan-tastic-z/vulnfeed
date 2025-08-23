@@ -1,5 +1,8 @@
 use crate::{
-    domain::models::sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
+    domain::models::{
+        sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
+        vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
+    },
     errors::Error,
 };
 use error_stack::Result;
@@ -13,6 +16,11 @@ pub trait VulnService: Clone + Send + Sync + 'static {
     fn get_sync_data_task(
         &self,
     ) -> impl Future<Output = Result<Option<SyncDataTask>, Error>> + Send;
+
+    fn list_vulnfusion_information(
+        &self,
+        req: ListVulnInformationRequest,
+    ) -> impl Future<Output = Result<ListVulnInformationResponseData, Error>> + Send;
 }
 
 pub trait VulnRepository: Clone + Send + Sync + 'static {
@@ -24,4 +32,9 @@ pub trait VulnRepository: Clone + Send + Sync + 'static {
     fn get_sync_data_task(
         &self,
     ) -> impl Future<Output = Result<Option<SyncDataTask>, Error>> + Send;
+
+    fn list_vulnfusion_information(
+        &self,
+        req: ListVulnInformationRequest,
+    ) -> impl Future<Output = Result<ListVulnInformationResponseData, Error>> + Send;
 }

@@ -4,6 +4,8 @@ use chrono::{DateTime, Utc};
 use modql::field::Fields;
 use serde::Serialize;
 
+use crate::domain::models::page_utils::PageFilter;
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, sqlx::FromRow)]
 pub struct VulnInformation {
     pub id: i64,
@@ -52,5 +54,28 @@ pub enum Severity {
 impl fmt::Display for Severity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ListVulnInformationRequest {
+    pub page_filter: PageFilter,
+}
+
+impl ListVulnInformationRequest {
+    pub fn new(page_filter: PageFilter) -> Self {
+        ListVulnInformationRequest { page_filter }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ListVulnInformationResponseData {
+    pub total: i64,
+    pub data: Vec<VulnInformation>,
+}
+
+impl ListVulnInformationResponseData {
+    pub fn new(total: i64, data: Vec<VulnInformation>) -> Self {
+        ListVulnInformationResponseData { total, data }
     }
 }

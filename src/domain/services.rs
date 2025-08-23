@@ -1,6 +1,9 @@
 use crate::{
     domain::{
-        models::sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
+        models::{
+            sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
+            vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
+        },
         ports::{VulnRepository, VulnService},
     },
     errors::Error,
@@ -35,6 +38,14 @@ where
 
     async fn get_sync_data_task(&self) -> Result<Option<SyncDataTask>, Error> {
         let ret = self.repo.get_sync_data_task().await?;
+        Ok(ret)
+    }
+
+    async fn list_vulnfusion_information(
+        &self,
+        req: ListVulnInformationRequest,
+    ) -> Result<ListVulnInformationResponseData, Error> {
+        let ret = self.repo.list_vulnfusion_information(req).await?; // Implement the logic here
         Ok(ret)
     }
 }
