@@ -38,7 +38,7 @@ impl Worker {
                 Error::Message("failed to begin transaction".to_string())
             })?;
 
-        let _ = VulnInformationDao::create_or_update(&mut tx, req).await?;
+        VulnInformationDao::create_or_update(&mut tx, req).await?;
         tx.commit()
             .await
             .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;

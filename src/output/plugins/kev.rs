@@ -89,7 +89,7 @@ impl VulnPlugin for KevPlugin {
             self.sender
                 .send(create_vuln_information_req)
                 .change_context_lazy(|| {
-                    Error::Message(format!("Failed to send vuln information to channel"))
+                    Error::Message("Failed to send vuln information to channel".to_string())
                 })?;
         }
         Ok(())

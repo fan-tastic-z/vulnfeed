@@ -139,10 +139,10 @@ async fn execute_job(_uuid: Uuid) {
         job_set.spawn(async move {
             let plugins = get_registry();
             log::info!("Updating plugin: {}", plugin_name);
-            if let Some(plugin) = plugins.get::<str>(&plugin_name) {
-                if let Err(e) = plugin.update(1).await {
-                    log::error!("Plugin update failed for {}: {}", plugin_name, e)
-                }
+            if let Some(plugin) = plugins.get::<str>(&plugin_name)
+                && let Err(e) = plugin.update(1).await
+            {
+                log::error!("Plugin update failed for {}: {}", plugin_name, e)
             }
         });
     }

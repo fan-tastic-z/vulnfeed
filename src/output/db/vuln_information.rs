@@ -29,7 +29,7 @@ impl VulnInformationDao {
     /// 检查漏洞严重性是否发生变化，如果变化则记录日志并添加变更原因
     fn check_severity_update(vuln: &mut VulnInformation, req: &CreateVulnInformation) -> bool {
         let severity = vuln.severity.to_string();
-        if severity != req.severity.to_string() {
+        if severity != req.severity {
             log::info!(
                 "{} from {} change severity from {} to {}",
                 vuln.title.as_str(),
@@ -85,16 +85,16 @@ impl VulnInformationDao {
             if as_new_vuln {
                 req.pushed = false;
                 dao_update::<Self, _>(tx, vuln.id, req).await?;
-                return Ok(());
+                Ok(())
             } else {
                 log::warn!("Vuln information already exists: {}", req.key);
-                return Ok(());
+                Ok(())
             }
         } else {
             log::info!("New vulnerability created: {}", req.key);
             req.reasons.push(REASON_NEW_CREATED.to_string());
             dao_create::<Self, _>(tx, req).await?;
-            return Ok(());
+            Ok(())
         }
     }
 }

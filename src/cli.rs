@@ -7,7 +7,7 @@ use crate::{
     },
     errors::Error,
     input::http::http_server::{self, make_acceptor_and_advertise_addr},
-    output::{db::pg::Pg, plugins, scheduler::Scheduler, worker::worker::Worker},
+    output::{db::pg::Pg, plugins, scheduler::Scheduler, worker::Worker},
     utils::{
         num_cpus,
         runtime::{Runtime, make_runtime},
