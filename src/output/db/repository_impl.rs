@@ -71,9 +71,15 @@ impl VulnRepository for Pg {
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
             })?;
-        let vuln_informations =
-            VulnInformationDao::filter_vulnfusion_information(&mut tx, &req.page_filter).await?;
-        let count = VulnInformationDao::filter_vulnfusion_information_count(&mut tx).await?;
+        let vuln_informations = VulnInformationDao::filter_vulnfusion_information(
+            &mut tx,
+            &req.page_filter,
+            req.search.as_deref(),
+        )
+        .await?;
+        let count =
+            VulnInformationDao::filter_vulnfusion_information_count(&mut tx, req.search.as_deref())
+                .await?;
 
         tx.commit()
             .await

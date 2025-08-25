@@ -60,11 +60,15 @@ impl fmt::Display for Severity {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ListVulnInformationRequest {
     pub page_filter: PageFilter,
+    pub search: Option<String>,
 }
 
 impl ListVulnInformationRequest {
-    pub fn new(page_filter: PageFilter) -> Self {
-        ListVulnInformationRequest { page_filter }
+    pub fn new(page_filter: PageFilter, search: Option<String>) -> Self {
+        ListVulnInformationRequest {
+            page_filter,
+            search,
+        }
     }
 }
 

@@ -26,6 +26,7 @@ use crate::{
 pub struct ListVulnInformationRequestBody {
     pub page_no: i32,
     pub page_size: i32,
+    pub search: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -40,7 +41,7 @@ impl ListVulnInformationRequestBody {
         let page_no = PageNo::try_new(self.page_no)?;
         let page_size = PageSize::try_new(self.page_size)?;
         let page_filter = PageFilter::new(page_no, page_size);
-        Ok(ListVulnInformationRequest::new(page_filter))
+        Ok(ListVulnInformationRequest::new(page_filter, self.search))
     }
 }
 

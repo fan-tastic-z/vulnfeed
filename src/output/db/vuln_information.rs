@@ -106,11 +106,21 @@ impl VulnInformationDao {
     pub async fn filter_vulnfusion_information(
         tx: &mut Transaction<'_, Postgres>,
         page_filter: &PageFilter,
+        search: Option<&str>,
     ) -> Result<Vec<VulnInformation>, Error> {
-        let query_builder = DaoQueryBuilder::<Self>::new();
+        let mut query_builder = DaoQueryBuilder::<Self>::new();
         let page_no = *page_filter.page_no().as_ref();
         let page_size = *page_filter.page_size().as_ref();
         let offset = (page_no - 1) * page_size;
+
+        // 添加搜索条件
+        if let Some(search_term) = search {
+            if !search_term.is_empty() {
+                query_builder = query_builder
+                    .and_where_like("title", search_term)
+                    .and_where_like("description", search_term);
+            }
+        }
 
         query_builder
             .order_by_desc("id")
@@ -121,8 +131,19 @@ impl VulnInformationDao {
 
     pub async fn filter_vulnfusion_information_count(
         tx: &mut Transaction<'_, Postgres>,
+        search: Option<&str>,
     ) -> Result<i64, Error> {
-        let query_builder = DaoQueryBuilder::<Self>::new();
+        let mut query_builder = DaoQueryBuilder::<Self>::new();
+
+        // 添加搜索条件
+        if let Some(search_term) = search {
+            if !search_term.is_empty() {
+                query_builder = query_builder
+                    .and_where_like("title", search_term)
+                    .and_where_like("description", search_term);
+            }
+        }
+
         query_builder.count(tx).await
     }
 
