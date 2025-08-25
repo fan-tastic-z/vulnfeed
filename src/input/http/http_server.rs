@@ -126,7 +126,7 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                 "/vulns",
                 Route::new().at(
                     "",
-                    get(vuln_information::list_vulnfusion_information::<S>::default()),
+                    get(vuln_information::list_vuln_information::<S>::default()),
                 ),
             ),
     )

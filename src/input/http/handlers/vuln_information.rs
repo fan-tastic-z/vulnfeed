@@ -123,7 +123,7 @@ impl From<ListVulnInformationResponseData> for ListVulnInformationHttpResponseDa
 }
 
 #[handler]
-pub async fn list_vulnfusion_information<S: VulnService + Send + Sync + 'static>(
+pub async fn list_vuln_information<S: VulnService + Send + Sync + 'static>(
     state: Data<&Ctx<S>>,
     Query(body): Query<ListVulnInformationRequestBody>,
 ) -> Result<ApiSuccess<ListVulnInformationHttpResponseData>, ApiError> {
