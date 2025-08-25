@@ -195,6 +195,30 @@ where
     Ok(result.rows_affected())
 }
 
+pub async fn dao_fetch_by_id<D, T>(
+    tx: &mut Transaction<'_, Postgres>,
+    id: i64,
+) -> Result<Option<T>, Error>
+where
+    D: Dao,
+    T: for<'r> FromRow<'r, sqlx::postgres::PgRow> + Unpin + Send,
+{
+    let (sql, values) = Query::select()
+        .from(D::table_ref())
+        .column(Asterisk)
+        .and_where(Expr::col(CommonIden::Id).eq(id))
+        .build_sqlx(PostgresQueryBuilder);
+
+    log::debug!("sql: {} values: {:?}", sql, values);
+
+    let result = sqlx::query_as_with::<_, T, _>(&sql, values)
+        .fetch_optional(tx.as_mut())
+        .await
+        .change_context_lazy(|| Error::Message("failed to fetch record by id".to_string()))?;
+
+    Ok(result)
+}
+
 pub struct DaoQueryBuilder<D: Dao> {
     query: SelectStatement,
     conditions: Vec<Condition>,

@@ -79,3 +79,14 @@ impl ListVulnInformationResponseData {
         ListVulnInformationResponseData { total, data }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct GetVulnInformationRequest {
+    pub id: i64,
+}
+
+impl GetVulnInformationRequest {
+    pub fn new(id: i64) -> Self {
+        GetVulnInformationRequest { id }
+    }
+}

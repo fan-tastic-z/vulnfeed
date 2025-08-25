@@ -6,7 +6,10 @@ use crate::{
             admin_user::AdminUser,
             auth::LoginRequest,
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
-            vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
+            vuln_information::{
+                GetVulnInformationRequest, ListVulnInformationRequest,
+                ListVulnInformationResponseData, VulnInformation,
+            },
         },
         ports::VulnRepository,
     },
@@ -79,5 +82,20 @@ impl VulnRepository for Pg {
             data: vuln_informations,
             total: count,
         })
+    }
+
+    async fn get_vuln_information(
+        &self,
+        req: GetVulnInformationRequest,
+    ) -> Result<Option<VulnInformation>, Error> {
+        let mut tx =
+            self.pool.begin().await.change_context_lazy(|| {
+                Error::Message("failed to begin transaction".to_string())
+            })?;
+        let vuln_information = VulnInformationDao::fetch_by_id(&mut tx, req.id).await?;
+        tx.commit()
+            .await
+            .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
+        Ok(vuln_information)
     }
 }

@@ -130,10 +130,15 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
             "/",
             Route::new().nest(
                 "/vulns",
-                Route::new().at(
-                    "",
-                    get(vuln_information::list_vuln_information::<S>::default()),
-                ),
+                Route::new()
+                    .at(
+                        "",
+                        get(vuln_information::list_vuln_information::<S>::default()),
+                    )
+                    .at(
+                        "/:id",
+                        get(vuln_information::get_vuln_information_detail::<S>::default()),
+                    ),
             ),
         )
 }

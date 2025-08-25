@@ -13,7 +13,8 @@ use crate::{
         models::{
             page_utils::{PageFilter, PageNo, PageNoError, PageSize, PageSizeError},
             vuln_information::{
-                ListVulnInformationRequest, ListVulnInformationResponseData, VulnInformation,
+                GetVulnInformationRequest, ListVulnInformationRequest,
+                ListVulnInformationResponseData, VulnInformation,
             },
         },
         ports::VulnService,
@@ -25,6 +26,11 @@ use crate::{
 pub struct ListVulnInformationRequestBody {
     pub page_no: i32,
     pub page_size: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct GetVulnInformationPath {
+    pub id: i64,
 }
 
 impl ListVulnInformationRequestBody {
@@ -134,4 +140,22 @@ pub async fn list_vuln_information<S: VulnService + Send + Sync + 'static>(
         .await
         .map_err(ApiError::from)
         .map(|data| ApiSuccess::new(StatusCode::OK, data.into()))
+}
+
+#[handler]
+pub async fn get_vuln_information_detail<S: VulnService + Send + Sync + 'static>(
+    state: Data<&Ctx<S>>,
+    poem::web::Path(path): poem::web::Path<GetVulnInformationPath>,
+) -> Result<ApiSuccess<VulnInformationData>, ApiError> {
+    let req = GetVulnInformationRequest::new(path.id);
+    state
+        .vuln_service
+        .get_vuln_information(req)
+        .await
+        .map_err(ApiError::from)
+        .and_then(|vuln| {
+            vuln.map(VulnInformationData::new)
+                .ok_or(ApiError::BadRequest("Vulnerability not found".to_string()))
+        })
+        .map(|data| ApiSuccess::new(StatusCode::OK, data))
 }

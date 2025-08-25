@@ -7,7 +7,9 @@ use crate::{
         vuln_information::{CreateVulnInformation, VulnInformation},
     },
     errors::Error,
-    output::db::base::{Dao, DaoQueryBuilder, dao_create, dao_fetch_by_column, dao_update},
+    output::db::base::{
+        Dao, DaoQueryBuilder, dao_create, dao_fetch_by_column, dao_fetch_by_id, dao_update,
+    },
 };
 
 const REASON_NEW_CREATED: &str = "漏洞创建";
@@ -122,5 +124,12 @@ impl VulnInformationDao {
     ) -> Result<i64, Error> {
         let query_builder = DaoQueryBuilder::<Self>::new();
         query_builder.count(tx).await
+    }
+
+    pub async fn fetch_by_id(
+        tx: &mut Transaction<'_, Postgres>,
+        id: i64,
+    ) -> Result<Option<VulnInformation>, Error> {
+        dao_fetch_by_id::<Self, VulnInformation>(tx, id).await
     }
 }

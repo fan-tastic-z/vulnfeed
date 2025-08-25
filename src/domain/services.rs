@@ -4,7 +4,10 @@ use crate::{
             admin_user::AdminUser,
             auth::LoginRequest,
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
-            vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
+            vuln_information::{
+                GetVulnInformationRequest, ListVulnInformationRequest,
+                ListVulnInformationResponseData, VulnInformation,
+            },
         },
         ports::{VulnRepository, VulnService},
     },
@@ -52,6 +55,14 @@ where
         req: ListVulnInformationRequest,
     ) -> Result<ListVulnInformationResponseData, Error> {
         let ret = self.repo.list_vulnfusion_information(req).await?; // Implement the logic here
+        Ok(ret)
+    }
+
+    async fn get_vuln_information(
+        &self,
+        req: GetVulnInformationRequest,
+    ) -> Result<Option<VulnInformation>, Error> {
+        let ret = self.repo.get_vuln_information(req).await?;
         Ok(ret)
     }
 }

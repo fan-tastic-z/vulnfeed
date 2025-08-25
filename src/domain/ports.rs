@@ -3,7 +3,10 @@ use crate::{
         admin_user::AdminUser,
         auth::LoginRequest,
         sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
-        vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
+        vuln_information::{
+            GetVulnInformationRequest, ListVulnInformationRequest, ListVulnInformationResponseData,
+            VulnInformation,
+        },
     },
     errors::Error,
 };
@@ -24,6 +27,11 @@ pub trait VulnService: Clone + Send + Sync + 'static {
         &self,
         req: ListVulnInformationRequest,
     ) -> impl Future<Output = Result<ListVulnInformationResponseData, Error>> + Send;
+
+    fn get_vuln_information(
+        &self,
+        req: GetVulnInformationRequest,
+    ) -> impl Future<Output = Result<Option<VulnInformation>, Error>> + Send;
 }
 
 pub trait VulnRepository: Clone + Send + Sync + 'static {
@@ -41,4 +49,9 @@ pub trait VulnRepository: Clone + Send + Sync + 'static {
         &self,
         req: ListVulnInformationRequest,
     ) -> impl Future<Output = Result<ListVulnInformationResponseData, Error>> + Send;
+
+    fn get_vuln_information(
+        &self,
+        req: GetVulnInformationRequest,
+    ) -> impl Future<Output = Result<Option<VulnInformation>, Error>> + Send;
 }
