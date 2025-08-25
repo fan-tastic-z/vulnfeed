@@ -1,3 +1,4 @@
+pub mod admin_user;
 pub mod base;
 pub mod pg;
 pub mod repository_impl;

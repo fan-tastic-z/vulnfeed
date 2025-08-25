@@ -1,5 +1,7 @@
 use crate::{
     domain::models::{
+        admin_user::AdminUser,
+        auth::LoginRequest,
         sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
         vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
     },
@@ -9,6 +11,7 @@ use error_stack::Result;
 use std::future::Future;
 
 pub trait VulnService: Clone + Send + Sync + 'static {
+    fn login(&self, req: &LoginRequest) -> impl Future<Output = Result<AdminUser, Error>> + Send;
     fn create_sync_data_task(
         &self,
         req: CreateSyncDataTaskRequest,
@@ -24,6 +27,7 @@ pub trait VulnService: Clone + Send + Sync + 'static {
 }
 
 pub trait VulnRepository: Clone + Send + Sync + 'static {
+    fn login(&self, req: &LoginRequest) -> impl Future<Output = Result<AdminUser, Error>> + Send;
     fn create_sync_data_task(
         &self,
         req: CreateSyncDataTaskRequest,

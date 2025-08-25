@@ -98,6 +98,7 @@ pub fn load_config(config_file: PathBuf) -> Result<LoadConfigResult, Error> {
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub server: Server,
+    pub auth: Auth,
     pub database: Database,
     pub telemetry: TelemetryConfig,
 }
@@ -109,6 +110,21 @@ pub struct Server {
     pub listen_addr: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub advertise_addr: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Auth {
+    pub jwt: Jwt,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Jwt {
+    #[serde(default = "default_jwt_secret")]
+    pub secret: String,
+    #[serde(default = "default_jwt_expiration")]
+    pub expiration: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -171,6 +187,12 @@ impl Default for Config {
             server: Server {
                 listen_addr: default_listen_addr(),
                 advertise_addr: None,
+            },
+            auth: Auth {
+                jwt: Jwt {
+                    secret: "secret".to_string(),
+                    expiration: 604800,
+                },
             },
             database: Database {
                 host: default_database_host(),
@@ -249,6 +271,14 @@ pub const fn known_option_entries() -> &'static [OptionEntry] {
 
 fn default_listen_addr() -> String {
     "0.0.0.0:9000".to_string()
+}
+
+fn default_jwt_secret() -> String {
+    "secret".to_string()
+}
+
+fn default_jwt_expiration() -> u64 {
+    604800
 }
 
 fn default_database_host() -> String {

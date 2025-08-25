@@ -1,6 +1,8 @@
 use crate::{
     domain::{
         models::{
+            admin_user::AdminUser,
+            auth::LoginRequest,
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
         },
@@ -31,6 +33,10 @@ impl<R> VulnService for Service<R>
 where
     R: VulnRepository,
 {
+    async fn login(&self, req: &LoginRequest) -> Result<AdminUser, Error> {
+        let res = self.repo.login(req).await?;
+        Ok(res)
+    }
     async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
         let ret = self.repo.create_sync_data_task(req).await?;
         Ok(ret)

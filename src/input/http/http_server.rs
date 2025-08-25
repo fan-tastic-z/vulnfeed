@@ -10,7 +10,10 @@ use poem::{
 use crate::{
     cli::Ctx,
     domain::ports::VulnService,
-    input::http::handlers::{sync_data_task, vuln_information},
+    input::http::{
+        handlers::{login, sync_data_task, vuln_information},
+        middleware::auth::AuthMiddleware,
+    },
     utils::runtime::{self, Runtime},
 };
 
@@ -111,23 +114,26 @@ pub async fn start_server<S: VulnService + Send + Sync + 'static>(
 }
 
 fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
-    Route::new().nest(
-        "/",
-        Route::new()
-            .nest(
-                "/sync_data_task",
-                Route::new().at(
-                    "",
-                    post(sync_data_task::create_or_update_sync_data_task::<S>::default())
-                        .get(sync_data_task::get_sync_data_task::<S>::default()),
-                ),
-            )
-            .nest(
-                "/vulns",
-                Route::new().at(
-                    "",
-                    get(vuln_information::list_vuln_information::<S>::default()),
-                ),
-            ),
-    )
+    Route::new()
+        .nest("/login", post(login::login::<S>::default()))
+        .nest(
+            "/",
+            Route::new()
+                .nest(
+                    "/sync_data_task",
+                    Route::new().at(
+                        "",
+                        post(sync_data_task::create_or_update_sync_data_task::<S>::default())
+                            .get(sync_data_task::get_sync_data_task::<S>::default()),
+                    ),
+                )
+                .nest(
+                    "/vulns",
+                    Route::new().at(
+                        "",
+                        get(vuln_information::list_vuln_information::<S>::default()),
+                    ),
+                )
+                .with(AuthMiddleware::<S>::default()),
+        )
 }

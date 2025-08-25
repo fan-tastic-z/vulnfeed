@@ -1,4 +1,6 @@
+pub mod auth;
 pub mod http_client;
+pub mod password_hash;
 pub mod runtime;
 pub mod styled;
 pub mod telemetry;

@@ -17,6 +17,7 @@ impl Command {
     pub fn run(self) -> Result<(), Error> {
         match self.cmd {
             SubCommand::Server(cmd) => cmd.run(),
+            SubCommand::CreateSuperUser(cmd) => cmd.run(),
         }
     }
 }
@@ -24,6 +25,7 @@ impl Command {
 #[derive(Debug, clap::Subcommand)]
 enum SubCommand {
     Server(cli::CommandStart),
+    CreateSuperUser(cli::CreateSuperUser),
 }
 
 fn main() -> Result<(), Error> {

@@ -3,16 +3,39 @@ use error_stack::{Result, ResultExt};
 use crate::{
     domain::{
         models::{
+            admin_user::AdminUser,
+            auth::LoginRequest,
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{ListVulnInformationRequest, ListVulnInformationResponseData},
         },
         ports::VulnRepository,
     },
     errors::Error,
-    output::db::{pg::Pg, sync_data_task::SyncDataTaskDao, vuln_information::VulnInformationDao},
+    output::db::{
+        admin_user::AdminUserDao, pg::Pg, sync_data_task::SyncDataTaskDao,
+        vuln_information::VulnInformationDao,
+    },
+    utils::password_hash::verify_password_hash,
 };
 
 impl VulnRepository for Pg {
+    async fn login(&self, req: &LoginRequest) -> Result<AdminUser, Error> {
+        let mut tx =
+            self.pool.begin().await.change_context_lazy(|| {
+                Error::Message("failed to begin transaction".to_string())
+            })?;
+        let admin = AdminUserDao::fetch_by_name(&mut tx, &req.username).await?;
+        if let Some(admin_user) = admin {
+            if verify_password_hash(&req.password, &admin_user.password) {
+                return Ok(admin_user);
+            } else {
+                log::error!("invalid account or password: {}", req.username);
+            }
+        }
+
+        return Err(Error::BadRequest("invalid account or password".to_string()).into());
+    }
+
     async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
