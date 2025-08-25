@@ -33,7 +33,7 @@ impl VulnRepository for Pg {
             }
         }
 
-        return Err(Error::BadRequest("invalid account or password".to_string()).into());
+        Err(Error::BadRequest("invalid account or password".to_string()).into())
     }
 
     async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
