@@ -30,11 +30,12 @@ logforth = { version = "0.27.0", features = [
     "append-rolling-file",
     "diagnostic-fastrace",
 ] }
-mea = "0.4.0"
+mea = "0.4.1"
 modql = { version = "0.4.1", features = ["with-sea-query"] }
 nutype = { version = "0.6.2", features = ["serde"] }
 pin-project = "1.1.10"
-poem = "3.1.12"
+poem = { version = "3.1.12", features = ["static-files", "embed"] }
+rust-embed = "8.5.0"
 reqwest = { version = "0.12.23", features = ["json"] }
 sea-query = { version = "0.32.7", features = ["postgres-array"] }
 sea-query-binder = { version = "0.7.0", features = [
@@ -56,7 +57,7 @@ sqlx = { version = "0.8.6", features = [
 thiserror = "2.0.16"
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
 tokio-cron-scheduler = { version = "0.14.0", features = ["signal"] }
-toml_edit = { version = "0.23.3", features = ["serde"] }
+toml_edit = { version = "0.23.4", features = ["serde"] }
 uuid = { version = "1.18.0", features = ["v4", "serde"] }
 
 [build-dependencies]

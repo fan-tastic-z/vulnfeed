@@ -2,10 +2,17 @@ use std::{io, net::SocketAddr, time::Duration};
 
 use mea::{shutdown::ShutdownRecv, waitgroup::WaitGroup};
 use poem::{
-    Endpoint, EndpointExt, Route, get,
+    Endpoint, EndpointExt, Route,
+    endpoint::EmbeddedFilesEndpoint,
+    get,
     listener::{Acceptor, Listener, TcpAcceptor, TcpListener},
     post,
 };
+use rust_embed::RustEmbed;
+
+#[derive(RustEmbed)]
+#[folder = "public/"]
+struct Assets;
 
 use crate::{
     cli::Ctx,
@@ -89,6 +96,7 @@ pub async fn start_server<S: VulnService + Send + Sync + 'static>(
         let wg_clone = wg.clone();
         let shutdown_clone = shutdown_rx_server.clone();
         let route = Route::new()
+            .nest("/", EmbeddedFilesEndpoint::<Assets>::new())
             .nest("/api", api_routes::<S>())
             .data(ctx.clone());
         let listen_addr = acceptor.local_addr()[0].clone();
