@@ -18,7 +18,7 @@ use crate::{
     cli::Ctx,
     domain::ports::VulnService,
     input::http::{
-        handlers::{login, sync_data_task, vuln_information},
+        handlers::{login, plugin, sync_data_task, vuln_information},
         middleware::auth::AuthMiddleware,
     },
     utils::runtime::{self, Runtime},
@@ -134,6 +134,7 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                 )
                 .with(AuthMiddleware::<S>::default()),
         )
+        .nest("/plugins", Route::new().at("", get(plugin::list_plugins)))
         .nest(
             "/",
             Route::new().nest(

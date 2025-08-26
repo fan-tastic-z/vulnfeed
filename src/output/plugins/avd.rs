@@ -30,8 +30,17 @@ pub struct AVDPlugin {
 #[async_trait]
 impl VulnPlugin for AVDPlugin {
     fn get_name(&self) -> String {
+        self.name.to_string()
+    }
+
+    fn get_display_name(&self) -> String {
         self.display_name.to_string()
     }
+
+    fn get_link(&self) -> String {
+        self.link.to_string()
+    }
+
     async fn update(&self, page_limit: i32) -> Result<(), Error> {
         let mut page_count = self.get_page_count().await?;
         if page_count > page_limit {

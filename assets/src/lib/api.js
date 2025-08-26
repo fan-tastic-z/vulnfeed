@@ -73,4 +73,9 @@ export const createOrUpdateSyncDataTask = (data) => {
     return api.post('/sync_data_task', data)
 }
 
+// 获取插件列表
+export const getPlugins = () => {
+    return api.get('/plugins')
+}
+
 export default api

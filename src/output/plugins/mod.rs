@@ -27,6 +27,8 @@ pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> Result<(), Error>
 #[async_trait]
 pub trait VulnPlugin: Send + Sync + 'static {
     fn get_name(&self) -> String;
+    fn get_display_name(&self) -> String;
+    fn get_link(&self) -> String;
     async fn update(&self, page_limit: i32) -> Result<(), Error>;
 }
 

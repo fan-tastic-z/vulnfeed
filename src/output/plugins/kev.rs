@@ -42,8 +42,17 @@ impl KevPlugin {
 #[async_trait]
 impl VulnPlugin for KevPlugin {
     fn get_name(&self) -> String {
+        self.name.to_string()
+    }
+
+    fn get_display_name(&self) -> String {
         self.display_name.to_string()
     }
+
+    fn get_link(&self) -> String {
+        self.link.to_string()
+    }
+
     async fn update(&self, page_limit: i32) -> Result<(), Error> {
         let kev_list_resp: KevResp = self
             .http_client
