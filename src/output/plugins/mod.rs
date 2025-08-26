@@ -1,3 +1,4 @@
+pub mod avd;
 pub mod kev;
 
 use async_trait::async_trait;
@@ -8,8 +9,9 @@ use mea::mpsc::UnboundedSender;
 use std::sync::Arc;
 
 use crate::{
-    domain::models::vuln_information::CreateVulnInformation, errors::Error,
-    output::plugins::kev::KevPlugin,
+    domain::models::vuln_information::CreateVulnInformation,
+    errors::Error,
+    output::plugins::{avd::AVDPlugin, kev::KevPlugin},
 };
 
 lazy_static! {
@@ -17,7 +19,8 @@ lazy_static! {
 }
 
 pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> Result<(), Error> {
-    KevPlugin::try_new(sender)?;
+    KevPlugin::try_new(sender.clone())?;
+    AVDPlugin::try_new(sender)?;
     Ok(())
 }
 

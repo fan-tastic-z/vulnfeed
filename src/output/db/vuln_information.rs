@@ -114,12 +114,12 @@ impl VulnInformationDao {
         let offset = (page_no - 1) * page_size;
 
         // 添加搜索条件
-        if let Some(search_term) = search {
-            if !search_term.is_empty() {
-                query_builder = query_builder
-                    .and_where_like("title", search_term)
-                    .and_where_like("description", search_term);
-            }
+        if let Some(search_term) = search
+            && !search_term.is_empty()
+        {
+            query_builder = query_builder
+                .and_where_like("title", search_term)
+                .and_where_like("description", search_term);
         }
 
         query_builder
@@ -136,12 +136,12 @@ impl VulnInformationDao {
         let mut query_builder = DaoQueryBuilder::<Self>::new();
 
         // 添加搜索条件
-        if let Some(search_term) = search {
-            if !search_term.is_empty() {
-                query_builder = query_builder
-                    .and_where_like("title", search_term)
-                    .and_where_like("description", search_term);
-            }
+        if let Some(search_term) = search
+            && !search_term.is_empty()
+        {
+            query_builder = query_builder
+                .and_where_like("title", search_term)
+                .and_where_like("description", search_term);
         }
 
         query_builder.count(tx).await
