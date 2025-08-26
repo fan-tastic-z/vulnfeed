@@ -1,13 +1,26 @@
 use error_stack::{Result, ResultExt};
+use reqwest::header::{self, HeaderMap};
 
 use crate::errors::Error;
 
 #[derive(Debug, Clone)]
 pub struct HttpClient {
-    http_client: reqwest::Client,
+    pub http_client: reqwest::Client,
 }
 
 impl HttpClient {
+    pub fn try_new_with_headers(mut headers: HeaderMap) -> Result<Self, Error> {
+        headers.insert("User-Agent", header::HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"));
+        let client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::none())
+            .danger_accept_invalid_certs(true)
+            .default_headers(headers)
+            .build()
+            .change_context_lazy(|| Error::Message("Failed to create HTTP client".to_string()))?;
+        Ok(Self {
+            http_client: client,
+        })
+    }
     pub fn try_new() -> Result<Self, Error> {
         let client = reqwest::Client::builder()
             .redirect(reqwest::redirect::Policy::none())

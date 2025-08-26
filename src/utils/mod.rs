@@ -4,6 +4,7 @@ pub mod password_hash;
 pub mod runtime;
 pub mod styled;
 pub mod telemetry;
+pub mod util;
 pub mod version;
 
 #[track_caller]

@@ -116,6 +116,9 @@ const VulnerabilityListPage = () => {
                           <p className="flex items-center text-sm text-gray-500">
                             CVE: {vuln.cve || 'N/A'}
                           </p>
+                          <p className="flex items-center mt-1 text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                            来源: {vuln.source}
+                          </p>
                           <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 sm:ml-6">
                             {vuln.tags && vuln.tags.slice(0, 5).map((tag, index) => (
                               <span key={index} className="px-2 py-1 text-xs font-medium text-indigo-800 bg-indigo-100 rounded-full">
