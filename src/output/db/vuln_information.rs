@@ -123,7 +123,7 @@ impl VulnInformationDao {
         }
 
         query_builder
-            .order_by_desc("id")
+            .order_by_desc("updated_at")
             .limit_offset(page_size as i64, offset as i64)
             .fetch_all(tx)
             .await
