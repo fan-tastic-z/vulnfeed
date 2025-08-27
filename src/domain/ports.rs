@@ -45,7 +45,7 @@ pub trait VulnRepository: Clone + Send + Sync + 'static {
         &self,
     ) -> impl Future<Output = Result<Option<SyncDataTask>, Error>> + Send;
 
-    fn list_vulnfusion_information(
+    fn list_vuln_information(
         &self,
         req: ListVulnInformationRequest,
     ) -> impl Future<Output = Result<ListVulnInformationResponseData, Error>> + Send;

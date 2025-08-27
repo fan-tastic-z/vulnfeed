@@ -14,7 +14,7 @@ use crate::{
             page_utils::{PageFilter, PageNo, PageNoError, PageSize, PageSizeError},
             vuln_information::{
                 GetVulnInformationRequest, ListVulnInformationRequest,
-                ListVulnInformationResponseData, VulnInformation,
+                ListVulnInformationResponseData, SearchParams, VulnInformation,
             },
         },
         ports::VulnService,
@@ -26,7 +26,10 @@ use crate::{
 pub struct ListVulnInformationRequestBody {
     pub page_no: i32,
     pub page_size: i32,
-    pub search: Option<String>,
+    pub cve: Option<String>,
+    pub title: Option<String>,
+    pub pushed: Option<bool>,
+    pub source: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -41,7 +44,12 @@ impl ListVulnInformationRequestBody {
         let page_no = PageNo::try_new(self.page_no)?;
         let page_size = PageSize::try_new(self.page_size)?;
         let page_filter = PageFilter::new(page_no, page_size);
-        Ok(ListVulnInformationRequest::new(page_filter, self.search))
+        let search_params = SearchParams::new()
+            .with_cve(self.cve)
+            .with_pushed(self.pushed)
+            .with_source(self.source)
+            .with_title(self.title);
+        Ok(ListVulnInformationRequest::new(page_filter, search_params))
     }
 }
 

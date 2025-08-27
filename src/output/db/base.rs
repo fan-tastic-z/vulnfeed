@@ -266,6 +266,13 @@ impl<D: Dao> DaoQueryBuilder<D> {
         self
     }
 
+    pub fn and_where_bool(mut self, column: &str, value: bool) -> Self {
+        let condition = Expr::col(Alias::new(column)).eq(value);
+        self.query.and_where(condition.clone());
+        self.conditions.push(Condition::all().add(condition));
+        self
+    }
+
     pub fn order_by_desc(mut self, column: &str) -> Self {
         self.query
             .order_by(Alias::new(column), sea_query::Order::Desc);

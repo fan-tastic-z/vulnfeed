@@ -63,7 +63,7 @@ impl VulnRepository for Pg {
         Ok(sync_data_task)
     }
 
-    async fn list_vulnfusion_information(
+    async fn list_vuln_information(
         &self,
         req: ListVulnInformationRequest,
     ) -> Result<ListVulnInformationResponseData, Error> {
@@ -74,11 +74,11 @@ impl VulnRepository for Pg {
         let vuln_informations = VulnInformationDao::filter_vulnfusion_information(
             &mut tx,
             &req.page_filter,
-            req.search.as_deref(),
+            &req.search_params,
         )
         .await?;
         let count =
-            VulnInformationDao::filter_vulnfusion_information_count(&mut tx, req.search.as_deref())
+            VulnInformationDao::filter_vulnfusion_information_count(&mut tx, &req.search_params)
                 .await?;
 
         tx.commit()

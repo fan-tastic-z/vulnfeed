@@ -48,12 +48,15 @@ export const login = (username, password) => {
 }
 
 // 获取漏洞列表
-export const getVulnerabilities = (pageNo, pageSize, searchTerm = '') => {
+export const getVulnerabilities = (params) => {
     return api.get('/vulns', {
         params: {
-            page_no: pageNo,
-            page_size: pageSize,
-            search: searchTerm,
+            page_no: params.pageNo,
+            page_size: params.pageSize,
+            cve: params.cve,
+            title: params.title,
+            pushed: params.pushed,
+            source: params.source,
         },
     })
 }

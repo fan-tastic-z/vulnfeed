@@ -4,7 +4,7 @@ use sqlx::{Postgres, Transaction};
 use crate::{
     domain::models::{
         page_utils::PageFilter,
-        vuln_information::{CreateVulnInformation, VulnInformation},
+        vuln_information::{CreateVulnInformation, SearchParams, VulnInformation},
     },
     errors::Error,
     output::db::base::{
@@ -106,22 +106,29 @@ impl VulnInformationDao {
     pub async fn filter_vulnfusion_information(
         tx: &mut Transaction<'_, Postgres>,
         page_filter: &PageFilter,
-        search: Option<&str>,
+        search_params: &SearchParams,
     ) -> Result<Vec<VulnInformation>, Error> {
         let mut query_builder = DaoQueryBuilder::<Self>::new();
+
+        if let Some(title) = &search_params.title {
+            query_builder = query_builder.and_where_like("title", title);
+        }
+
+        if let Some(source) = &search_params.source {
+            query_builder = query_builder.and_where_like("source", source);
+        }
+
+        if let Some(pushed) = &search_params.pushed {
+            query_builder = query_builder.and_where_bool("pushed", *pushed);
+        }
+
+        if let Some(cve) = &search_params.cve {
+            query_builder = query_builder.and_where_like("cve", cve);
+        }
+
         let page_no = *page_filter.page_no().as_ref();
         let page_size = *page_filter.page_size().as_ref();
         let offset = (page_no - 1) * page_size;
-
-        // 添加搜索条件
-        if let Some(search_term) = search
-            && !search_term.is_empty()
-        {
-            query_builder = query_builder
-                .and_where_like("title", search_term)
-                .and_where_like("description", search_term);
-        }
-
         query_builder
             .order_by_desc("updated_at")
             .limit_offset(page_size as i64, offset as i64)
@@ -131,17 +138,24 @@ impl VulnInformationDao {
 
     pub async fn filter_vulnfusion_information_count(
         tx: &mut Transaction<'_, Postgres>,
-        search: Option<&str>,
+        search_params: &SearchParams,
     ) -> Result<i64, Error> {
         let mut query_builder = DaoQueryBuilder::<Self>::new();
 
-        // 添加搜索条件
-        if let Some(search_term) = search
-            && !search_term.is_empty()
-        {
-            query_builder = query_builder
-                .and_where_like("title", search_term)
-                .and_where_like("description", search_term);
+        if let Some(title) = &search_params.title {
+            query_builder = query_builder.and_where_like("title", title);
+        }
+
+        if let Some(source) = &search_params.source {
+            query_builder = query_builder.and_where_like("source", source);
+        }
+
+        if let Some(pushed) = &search_params.pushed {
+            query_builder = query_builder.and_where_bool("pushed", *pushed);
+        }
+
+        if let Some(cve) = &search_params.cve {
+            query_builder = query_builder.and_where_like("cve", cve);
         }
 
         query_builder.count(tx).await

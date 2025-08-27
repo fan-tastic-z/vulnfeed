@@ -60,14 +60,45 @@ impl fmt::Display for Severity {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ListVulnInformationRequest {
     pub page_filter: PageFilter,
-    pub search: Option<String>,
+    pub search_params: SearchParams,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct SearchParams {
+    pub cve: Option<String>,
+    pub title: Option<String>,
+    pub pushed: Option<bool>,
+    pub source: Option<String>,
+}
+
+impl SearchParams {
+    pub fn new() -> Self {
+        SearchParams::default()
+    }
+
+    pub fn with_cve(mut self, cve: Option<String>) -> Self {
+        self.cve = cve;
+        self
+    }
+    pub fn with_title(mut self, title: Option<String>) -> Self {
+        self.title = title;
+        self
+    }
+    pub fn with_pushed(mut self, pushed: Option<bool>) -> Self {
+        self.pushed = pushed;
+        self
+    }
+    pub fn with_source(mut self, source: Option<String>) -> Self {
+        self.source = source;
+        self
+    }
 }
 
 impl ListVulnInformationRequest {
-    pub fn new(page_filter: PageFilter, search: Option<String>) -> Self {
+    pub fn new(page_filter: PageFilter, search_params: SearchParams) -> Self {
         ListVulnInformationRequest {
             page_filter,
-            search,
+            search_params,
         }
     }
 }

@@ -54,7 +54,7 @@ where
         &self,
         req: ListVulnInformationRequest,
     ) -> Result<ListVulnInformationResponseData, Error> {
-        let ret = self.repo.list_vulnfusion_information(req).await?; // Implement the logic here
+        let ret = self.repo.list_vuln_information(req).await?; // Implement the logic here
         Ok(ret)
     }
 

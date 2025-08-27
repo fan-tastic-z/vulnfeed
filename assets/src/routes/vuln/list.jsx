@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getVulnerabilities } from '../../lib/api'
+import { getVulnerabilities, getPlugins } from '../../lib/api'
 
 const VulnerabilityListPage = () => {
   const [vulnerabilities, setVulnerabilities] = useState([])
@@ -9,18 +9,50 @@ const VulnerabilityListPage = () => {
   const [pageNo, setPageNo] = useState(1)
   const [pageSize] = useState(10)
   const [totalCount, setTotalCount] = useState(0)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [plugins, setPlugins] = useState([])
+  // 新的筛选条件状态
+  const [filters, setFilters] = useState({
+    cve: '',
+    title: '',
+    pushed: '',
+    source: ''  // 存储插件的link字段
+  })
+
+  useEffect(() => {
+    fetchPlugins()
+  }, [])
 
   useEffect(() => {
     fetchVulnerabilities()
-  }, [pageNo, searchTerm])
+  }, [pageNo, filters])
+
+  const fetchPlugins = async () => {
+    try {
+      const response = await getPlugins()
+      setPlugins(response.data.data)
+    } catch (err) {
+      console.error('获取插件列表失败:', err)
+    }
+  }
 
   const fetchVulnerabilities = async () => {
     setLoading(true)
     setError('')
 
     try {
-      const response = await getVulnerabilities(pageNo, pageSize, searchTerm)
+      const params = {
+        pageNo,
+        pageSize,
+        ...filters
+      }
+      // 清理空值参数
+      Object.keys(params).forEach(key => {
+        if (params[key] === '' || params[key] === undefined) {
+          delete params[key]
+        }
+      })
+
+      const response = await getVulnerabilities(params)
       const { data, total_count } = response.data.data
       setVulnerabilities(data)
       setTotalCount(total_count)
@@ -35,9 +67,34 @@ const VulnerabilityListPage = () => {
   const handlePageChange = (newPageNo) => {
     setPageNo(newPageNo)
   }
+const handleFilterChange = (e) => {
+  const { name, value } = e.target
+  setFilters(prev => ({
+    ...prev,
+    [name]: value
+  }))
+  // 重置页码到第一页
+  setPageNo(1)
+}
 
-  const handleSearch = (e) => {
-    e.preventDefault()
+const handleSourceFilterChange = (e) => {
+  const selectedLink = e.target.value
+  setFilters(prev => ({
+    ...prev,
+    source: selectedLink
+  }))
+  // 重置页码到第一页
+  setPageNo(1)
+}
+
+
+  const handleResetFilters = () => {
+    setFilters({
+      cve: '',
+      title: '',
+      pushed: '',
+      source: ''
+    })
     // 重置页码到第一页
     setPageNo(1)
   }
@@ -55,27 +112,81 @@ const VulnerabilityListPage = () => {
         </p>
       </div>
 
-      {/* 搜索框 */}
+      {/* 筛选控件 */}
       <div className="mb-6">
-        <form onSubmit={handleSearch} className="max-w-md mx-auto">
-          <div className="relative">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <label htmlFor="cve" className="block text-sm font-medium text-gray-700">
+              CVE编号
+            </label>
             <input
               type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="搜索漏洞标题或描述..."
+              name="cve"
+              id="cve"
+              value={filters.cve}
+              onChange={handleFilterChange}
+              placeholder="搜索CVE编号..."
               className="block w-full py-2 pl-4 pr-12 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            <button
-              type="submit"
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
-            >
-              <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
-            </button>
           </div>
-        </form>
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              漏洞标题
+            </label>
+            <input
+              type="text"
+              name="title"
+              id="title"
+              value={filters.title}
+              onChange={handleFilterChange}
+              placeholder="搜索漏洞标题..."
+              className="block w-full py-2 pl-4 pr-12 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="pushed" className="block text-sm font-medium text-gray-700">
+              推送状态
+            </label>
+            <select
+              name="pushed"
+              id="pushed"
+              value={filters.pushed}
+              onChange={handleFilterChange}
+              className="block w-full py-2 pl-4 pr-12 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">全部</option>
+              <option value="true">已推送</option>
+              <option value="false">未推送</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="source" className="block text-sm font-medium text-gray-700">
+              来源
+            </label>
+            <select
+              name="source"
+              id="source"
+              value={filters.source}
+              onChange={handleSourceFilterChange}
+              className="block w-full py-2 pl-4 pr-12 leading-5 placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">全部</option>
+              {plugins.map((plugin) => (
+                <option key={plugin.link} value={plugin.link}>
+                  {plugin.display_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={handleResetFilters}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            重置筛选
+          </button>
+        </div>
       </div>
 
       {error && (
