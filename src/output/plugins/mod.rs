@@ -2,6 +2,7 @@ pub mod avd;
 pub mod kev;
 pub mod oscs;
 pub mod seekbug;
+pub mod threatbook;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
@@ -13,7 +14,10 @@ use std::sync::Arc;
 use crate::{
     domain::models::vuln_information::CreateVulnInformation,
     errors::Error,
-    output::plugins::{avd::AVDPlugin, kev::KevPlugin, oscs::OscsPlugin, seekbug::SeekBugPlugin},
+    output::plugins::{
+        avd::AVDPlugin, kev::KevPlugin, oscs::OscsPlugin, seekbug::SeekBugPlugin,
+        threatbook::ThreatBookPlugin,
+    },
 };
 
 lazy_static! {
@@ -24,7 +28,8 @@ pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> Result<(), Error>
     KevPlugin::try_new(sender.clone())?;
     AVDPlugin::try_new(sender.clone())?;
     OscsPlugin::try_new(sender.clone())?;
-    SeekBugPlugin::try_new(sender)?;
+    SeekBugPlugin::try_new(sender.clone())?;
+    ThreatBookPlugin::try_new(sender)?;
     Ok(())
 }
 
