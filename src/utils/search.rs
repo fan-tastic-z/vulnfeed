@@ -29,9 +29,9 @@ pub async fn search_nuclei_pr(cve_id: &str) -> Result<Vec<String>, Error> {
         .page(1u32)
         .send()
         .await
-        .map_err(|e| Error::Message(format!("Failed to search nuclei pr: {}", e.to_string())))?;
+        .map_err(|e| Error::Message(format!("Failed to search nuclei pr: {}", e)))?;
     let re = Regex::new(&format!(r"(?i)(?:\b|/|_){}(?:\b|/|_)", cve_id))
-        .map_err(|e| Error::Message(format!("Failed to compile regex: {}", e.to_string())))?;
+        .map_err(|e| Error::Message(format!("Failed to compile regex: {}", e)))?;
     let links = page
         .into_iter()
         .filter(|pull| pull.title.is_some() || pull.body.is_some())
@@ -59,9 +59,9 @@ pub async fn search_github_repo(cve_id: &str) -> Result<Vec<String>, Error> {
         .page(1u32)
         .send()
         .await
-        .map_err(|e| Error::Message(format!("Failed to search github repo: {}", e.to_string())))?;
+        .map_err(|e| Error::Message(format!("Failed to search github repo: {}", e)))?;
     let re = Regex::new(&format!(r"(?i)(?:\b|/|_){}(?:\b|/|_)", cve_id))
-        .map_err(|e| Error::Message(format!("Failed to compile regex: {}", e.to_string())))?;
+        .map_err(|e| Error::Message(format!("Failed to compile regex: {}", e)))?;
     let links = page
         .into_iter()
         .filter_map(|r| r.html_url)

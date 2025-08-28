@@ -117,7 +117,7 @@ const DingBotConfigPage = () => {
                     value={config.access_token}
                     onChange={handleChange}
                     required
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <p className="mt-2 text-sm text-gray-500">
@@ -137,7 +137,7 @@ const DingBotConfigPage = () => {
                     value={config.secret_token}
                     onChange={handleChange}
                     required
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <p className="mt-2 text-sm text-gray-500">

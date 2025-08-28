@@ -25,12 +25,12 @@ impl Dao for VulnInformationDao {
 }
 
 impl VulnInformationDao {
-    pub async fn update_status(
+    pub async fn update_pushed(
         tx: &mut Transaction<'_, Postgres>,
         id: i64,
         status: bool,
     ) -> Result<u64, Error> {
-        let row = dao_update_field::<Self>(tx, id, "status", Value::Bool(Some(status))).await?;
+        let row = dao_update_field::<Self>(tx, id, "pushed", Value::Bool(Some(status))).await?;
         Ok(row)
     }
 

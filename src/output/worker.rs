@@ -68,7 +68,7 @@ impl Worker {
                 };
                 ding.push_markdown(title, msg).await?;
                 log::info!("ding bot push success! id: {}", id);
-                VulnInformationDao::update_status(&mut tx, id, true).await?;
+                VulnInformationDao::update_pushed(&mut tx, id, true).await?;
             }
         } else {
             log::info!("ding bot config not found or status is false");
