@@ -1,0 +1,41 @@
+version: "3.1"
+
+services:
+  postgres:
+    image: postgres:14.0
+    restart: always
+    cap_drop:
+      - NET_RAW
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200M"
+    stop_grace_period: 30s
+    environment:
+      POSTGRES_PASSWORD: YSm*wF60c72CLJD!
+      POSTGRES_USERNAME: postgres
+      POSTGRES_DB: vulnfeed
+      TZ: Asia/Shanghai
+    volumes:
+      - "./data/:/var/lib/postgresql/data/"
+    ports:
+      - "127.0.0.1:5432:5432"
+    privileged: true
+
+  vulnfeed:
+    image: vulnfeed:latest
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - "./config/config.toml:/app/config.toml"
+    privileged: true
+    command: ["./vulnfeed", "server", "--config-file", "config.toml"]
+    ports:
+      - "9000:9000"
+
+networks:
+  vulnfeed-net:
+    name: vulnfeed-net
+    ipam:
+      driver: default

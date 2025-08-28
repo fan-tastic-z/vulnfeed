@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE vuln_information (
+CREATE TABLE IF NOT EXISTS vuln_information (
     id BIGSERIAL PRIMARY KEY,
     key TEXT NOT NULL UNIQUE,
     title TEXT NOT NULL DEFAULT '',
@@ -18,7 +18,7 @@ CREATE TABLE vuln_information (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE sync_task (
+CREATE TABLE IF NOT EXISTS sync_task (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL DEFAULT '',
     interval_minutes INTEGER NOT NULL DEFAULT 15,
@@ -28,7 +28,7 @@ CREATE TABLE sync_task (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE sync_task_record (
+CREATE TABLE IF NOT EXISTS sync_task_record (
     id BIGSERIAL PRIMARY KEY,
     task_id TEXT NOT NULL DEFAULT '',
     started_at TIMESTAMPTZ,
@@ -39,7 +39,7 @@ CREATE TABLE sync_task_record (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE admin_user (
+CREATE TABLE IF NOT EXISTS admin_user (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL DEFAULT '',

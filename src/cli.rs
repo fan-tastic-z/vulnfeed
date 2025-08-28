@@ -73,6 +73,12 @@ async fn run_server(server_rt: &Runtime, config: Config) -> Result<(), Error> {
     let jwt = JWT::new(&config.auth.jwt.secret);
 
     let db = Pg::new(&config).await.change_context_lazy(make_error)?;
+
+    sqlx::migrate!("./migrations")
+        .run(&db.pool)
+        .await
+        .change_context_lazy(make_error)?;
+
     let (sender, receiver) = mea::mpsc::unbounded::<CreateVulnInformation>();
     plugins::init(sender).change_context_lazy(make_error)?;
 

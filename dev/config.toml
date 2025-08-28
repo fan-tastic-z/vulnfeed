@@ -9,7 +9,7 @@ expiration = 604800             # 7 days
 [database]
 host = "127.0.0.1"
 port = 5432
-username = "app"
+username = "postgres"
 password = "YSm*wF60c72CLJD!"
 database_name = "vulnfeed"
 
