@@ -66,6 +66,7 @@ sha2 = "0.10.9"
 tera = "1.20.0"
 hmac = "0.12.1"
 base64 = "0.22.1"
+octocrab = "0.44.1"
 
 [build-dependencies]
 build-data = "0.3.3"

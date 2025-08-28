@@ -6,6 +6,7 @@ pub mod styled;
 pub mod telemetry;
 pub mod util;
 pub mod version;
+pub mod search;
 
 #[track_caller]
 pub fn num_cpus() -> std::num::NonZeroUsize {

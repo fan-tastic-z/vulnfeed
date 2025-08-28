@@ -106,6 +106,7 @@ impl VulnInformationDao {
             }
             Ok((vuln.id, as_new_vuln))
         } else {
+            as_new_vuln = true;
             log::info!("New vulnerability created: {}", req.key);
             req.reasons.push(REASON_NEW_CREATED.to_string());
             let id = dao_create::<Self, _>(tx, req).await?;
@@ -176,5 +177,12 @@ impl VulnInformationDao {
         id: i64,
     ) -> Result<Option<VulnInformation>, Error> {
         dao_fetch_by_id::<Self, VulnInformation>(tx, id).await
+    }
+
+    pub async fn fetch_by_key(
+        tx: &mut Transaction<'_, Postgres>,
+        key: &str,
+    ) -> Result<Option<VulnInformation>, Error> {
+        dao_fetch_by_column::<Self, VulnInformation>(tx, "key", key).await
     }
 }

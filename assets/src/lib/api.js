@@ -81,4 +81,14 @@ export const getPlugins = () => {
     return api.get('/plugins')
 }
 
+// 获取钉钉机器人配置
+export const getDingBotConfig = () => {
+    return api.get('/ding_bot_config')
+}
+
+// 创建或更新钉钉机器人配置
+export const createOrUpdateDingBotConfig = (data) => {
+    return api.post('/ding_bot_config', data)
+}
+
 export default api

@@ -1,0 +1,9 @@
+-- Add migration script here
+CREATE TABLE IF NOT EXISTS ding_bot_config (
+    id BIGSERIAL PRIMARY KEY,
+    access_token TEXT NOT NULL,
+    secret_token TEXT NOT NULL,
+    status BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

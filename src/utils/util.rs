@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Duration, Local, NaiveDate, Utc};
 use error_stack::Result;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -30,4 +30,21 @@ pub fn render_string(tera_template: &str, locals: &serde_json::Value) -> Result<
     )
     .map_err(|e| Error::Message(format!("render template error: {:?}", e).to_string()))?;
     Ok(text)
+}
+
+pub fn get_last_year_data() -> String {
+    let current_date = Local::now();
+    let last_year = current_date - Duration::days(365);
+    last_year.format("%Y-%m-%d").to_string()
+}
+
+pub fn check_over_two_week(date: &str) -> Result<bool, Error> {
+    let target_date = NaiveDate::parse_from_str(date, "%Y-%m-%d")
+        .map_err(|e| Error::Message(format!("parse date error: {:?}", e)))?;
+    let now = Utc::now().naive_utc().date();
+    let two_weeks_ago = now - Duration::weeks(2);
+    if target_date >= two_weeks_ago && target_date <= now {
+        return Ok(false);
+    }
+    Ok(true)
 }

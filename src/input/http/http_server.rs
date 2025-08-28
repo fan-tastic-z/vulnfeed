@@ -152,7 +152,8 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                     "/ding_bot_config",
                     Route::new().at(
                         "",
-                        post(ding_bot_config::create_or_update_ding_bot_config::<S>::default()),
+                        post(ding_bot_config::create_or_update_ding_bot_config::<S>::default())
+                            .get(ding_bot_config::get_ding_bot_config::<S>::default()),
                     ),
                 )
                 .with(AuthMiddleware::<S>::default()),

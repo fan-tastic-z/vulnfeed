@@ -10,6 +10,7 @@ use crate::{
         db::{ding_bot_config::DingBotConfigDao, pg::Pg, vuln_information::VulnInformationDao},
         push::{MessageBot, ding_bot::DingBot, reader_vulninfo},
     },
+    utils::search::search_github_poc,
 };
 
 pub struct Worker {
@@ -43,6 +44,7 @@ impl Worker {
     }
 
     pub async fn ding_bot_push(&self, id: i64) -> Result<(), Error> {
+        log::info!("ding bot push start! id: {}", id);
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -65,18 +67,29 @@ impl Worker {
                     }
                 };
                 ding.push_markdown(title, msg).await?;
+                log::info!("ding bot push success! id: {}", id);
                 VulnInformationDao::update_status(&mut tx, id, true).await?;
             }
+        } else {
+            log::info!("ding bot config not found or status is false");
         }
+        tx.commit()
+            .await
+            .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
         Ok(())
     }
 
-    pub async fn store(&self, req: CreateVulnInformation) -> Result<(i64, bool), Error> {
+    pub async fn store(&self, mut req: CreateVulnInformation) -> Result<(i64, bool), Error> {
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
             })?;
-
+        if VulnInformationDao::fetch_by_key(&mut tx, &req.key)
+            .await?
+            .is_none()
+        {
+            req.github_search = search_github_poc(&req.cve).await;
+        }
         let (id, as_new_vuln) = VulnInformationDao::create_or_update(&mut tx, req).await?;
         tx.commit()
             .await
