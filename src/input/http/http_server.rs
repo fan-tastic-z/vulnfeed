@@ -12,7 +12,7 @@ use rust_embed::RustEmbed;
 #[folder = "public/"]
 struct Assets;
 
-use crate::input::http::spa_endpoint::SpaFileEndpoint;
+use crate::input::http::{handlers::ding_bot_config, spa_endpoint::SpaFileEndpoint};
 
 use crate::{
     cli::Ctx,
@@ -146,6 +146,13 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                         "",
                         post(sync_data_task::create_or_update_sync_data_task::<S>::default())
                             .get(sync_data_task::get_sync_data_task::<S>::default()),
+                    ),
+                )
+                .nest(
+                    "/ding_bot_config",
+                    Route::new().at(
+                        "",
+                        post(ding_bot_config::create_or_update_ding_bot_config::<S>::default()),
                     ),
                 )
                 .with(AuthMiddleware::<S>::default()),

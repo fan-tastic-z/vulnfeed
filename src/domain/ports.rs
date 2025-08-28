@@ -2,6 +2,7 @@ use crate::{
     domain::models::{
         admin_user::AdminUser,
         auth::LoginRequest,
+        ding_bot::{CreateDingBotRequest, DingBotConfig},
         sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
         vuln_information::{
             GetVulnInformationRequest, ListVulnInformationRequest, ListVulnInformationResponseData,
@@ -32,6 +33,15 @@ pub trait VulnService: Clone + Send + Sync + 'static {
         &self,
         req: GetVulnInformationRequest,
     ) -> impl Future<Output = Result<Option<VulnInformation>, Error>> + Send;
+
+    fn create_ding_bot_config(
+        &self,
+        req: CreateDingBotRequest,
+    ) -> impl Future<Output = Result<i64, Error>> + Send;
+
+    fn get_ding_bot_config(
+        &self,
+    ) -> impl Future<Output = Result<Option<DingBotConfig>, Error>> + Send;
 }
 
 pub trait VulnRepository: Clone + Send + Sync + 'static {
@@ -54,4 +64,13 @@ pub trait VulnRepository: Clone + Send + Sync + 'static {
         &self,
         req: GetVulnInformationRequest,
     ) -> impl Future<Output = Result<Option<VulnInformation>, Error>> + Send;
+
+    fn create_ding_bot_config(
+        &self,
+        req: CreateDingBotRequest,
+    ) -> impl Future<Output = Result<i64, Error>> + Send;
+
+    fn get_ding_bot_config(
+        &self,
+    ) -> impl Future<Output = Result<Option<DingBotConfig>, Error>> + Send;
 }

@@ -5,6 +5,7 @@ use crate::{
         models::{
             admin_user::AdminUser,
             auth::LoginRequest,
+            ding_bot::{CreateDingBotRequest, DingBotConfig},
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{
                 GetVulnInformationRequest, ListVulnInformationRequest,
@@ -15,8 +16,8 @@ use crate::{
     },
     errors::Error,
     output::db::{
-        admin_user::AdminUserDao, pg::Pg, sync_data_task::SyncDataTaskDao,
-        vuln_information::VulnInformationDao,
+        admin_user::AdminUserDao, ding_bot_config::DingBotConfigDao, pg::Pg,
+        sync_data_task::SyncDataTaskDao, vuln_information::VulnInformationDao,
     },
     utils::password_hash::verify_password_hash,
 };
@@ -103,5 +104,26 @@ impl VulnRepository for Pg {
             .await
             .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
         Ok(vuln_information)
+    }
+
+    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> Result<i64, Error> {
+        let mut tx =
+            self.pool.begin().await.change_context_lazy(|| {
+                Error::Message("failed to begin transaction".to_string())
+            })?;
+        let id = DingBotConfigDao::create(&mut tx, req).await?;
+        Ok(id)
+    }
+
+    async fn get_ding_bot_config(&self) -> Result<Option<DingBotConfig>, Error> {
+        let mut tx =
+            self.pool.begin().await.change_context_lazy(|| {
+                Error::Message("failed to begin transaction".to_string())
+            })?;
+        let ding_bot_config = DingBotConfigDao::first(&mut tx).await?;
+        tx.commit()
+            .await
+            .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
+        Ok(ding_bot_config)
     }
 }

@@ -3,6 +3,7 @@ use crate::{
         models::{
             admin_user::AdminUser,
             auth::LoginRequest,
+            ding_bot::{CreateDingBotRequest, DingBotConfig},
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{
                 GetVulnInformationRequest, ListVulnInformationRequest,
@@ -63,6 +64,16 @@ where
         req: GetVulnInformationRequest,
     ) -> Result<Option<VulnInformation>, Error> {
         let ret = self.repo.get_vuln_information(req).await?;
+        Ok(ret)
+    }
+
+    async fn get_ding_bot_config(&self) -> Result<Option<DingBotConfig>, Error> {
+        let ret = self.repo.get_ding_bot_config().await?;
+        Ok(ret)
+    }
+
+    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> Result<i64, Error> {
+        let ret = self.repo.create_ding_bot_config(req).await?;
         Ok(ret)
     }
 }

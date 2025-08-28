@@ -2,11 +2,13 @@ use std::fmt;
 
 use chrono::{DateTime, Utc};
 use modql::field::Fields;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::domain::models::page_utils::PageFilter;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, sqlx::FromRow)]
+#[derive(
+    Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, sqlx::FromRow, Deserialize,
+)]
 pub struct VulnInformation {
     pub id: i64,
     pub key: String,
@@ -27,7 +29,7 @@ pub struct VulnInformation {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Fields)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Fields, Serialize)]
 pub struct CreateVulnInformation {
     pub key: String,
     pub title: String,

@@ -1,3 +1,4 @@
+pub mod ding_bot_config;
 pub mod login;
 pub mod plugin;
 pub mod sync_data_task;

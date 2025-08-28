@@ -1,4 +1,5 @@
 use error_stack::Result;
+use sea_query::Value;
 use sqlx::{Postgres, Transaction};
 
 use crate::{
@@ -9,6 +10,7 @@ use crate::{
     errors::Error,
     output::db::base::{
         Dao, DaoQueryBuilder, dao_create, dao_fetch_by_column, dao_fetch_by_id, dao_update,
+        dao_update_field,
     },
 };
 
@@ -23,6 +25,15 @@ impl Dao for VulnInformationDao {
 }
 
 impl VulnInformationDao {
+    pub async fn update_status(
+        tx: &mut Transaction<'_, Postgres>,
+        id: i64,
+        status: bool,
+    ) -> Result<u64, Error> {
+        let row = dao_update_field::<Self>(tx, id, "status", Value::Bool(Some(status))).await?;
+        Ok(row)
+    }
+
     pub async fn create(
         tx: &mut Transaction<'_, Postgres>,
         req: CreateVulnInformation,
@@ -80,26 +91,25 @@ impl VulnInformationDao {
     pub async fn create_or_update(
         tx: &mut Transaction<'_, Postgres>,
         mut req: CreateVulnInformation,
-    ) -> Result<(), Error> {
+    ) -> Result<(i64, bool), Error> {
+        let mut as_new_vuln = false;
         if let Some(mut vuln) =
             dao_fetch_by_column::<Self, VulnInformation>(tx, "key", &req.key).await?
         {
-            let mut as_new_vuln = false;
             as_new_vuln |= VulnInformationDao::check_severity_update(&mut vuln, &req);
             as_new_vuln |= VulnInformationDao::check_tag_update(&mut vuln, &req);
             if as_new_vuln {
                 req.pushed = false;
                 dao_update::<Self, _>(tx, vuln.id, req).await?;
-                Ok(())
             } else {
                 log::warn!("Vuln information already exists: {}", req.key);
-                Ok(())
             }
+            Ok((vuln.id, as_new_vuln))
         } else {
             log::info!("New vulnerability created: {}", req.key);
             req.reasons.push(REASON_NEW_CREATED.to_string());
-            dao_create::<Self, _>(tx, req).await?;
-            Ok(())
+            let id = dao_create::<Self, _>(tx, req).await?;
+            Ok((id, as_new_vuln))
         }
     }
 

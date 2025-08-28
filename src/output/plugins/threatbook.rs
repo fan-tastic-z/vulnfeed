@@ -49,10 +49,10 @@ impl VulnPlugin for ThreatBookPlugin {
             let disclosure = v.vuln_update_time.clone();
 
             let mut tags = Vec::new();
-            if let Some(is_0day) = v.is_0day {
-                if is_0day {
-                    tags.push("0day".to_string());
-                }
+            if let Some(is_0day) = v.is_0day
+                && is_0day
+            {
+                tags.push("0day".to_string());
             }
             if v.poc_exist {
                 tags.push("有Poc".to_string());
