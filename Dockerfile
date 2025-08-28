@@ -37,9 +37,9 @@ WORKDIR /app
 # Configure domestic mirror for faster crate downloads
 RUN mkdir -p .cargo && \
     echo '[source.crates-io]' > .cargo/config.toml && \
-    echo 'replace-with = "chaitin"' >> .cargo/config.toml && \
-    echo '[source.chaitin]' >> .cargo/config.toml && \
-    echo 'registry = "sparse+https://mirror.dev.in.chaitin.net/crates.io-index/"' >> .cargo/config.toml
+    echo 'replace-with = "tuna"' >> .cargo/config.toml && \
+    echo '[source.tuna]' >> .cargo/config.toml && \
+    echo 'registry = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"' >> .cargo/config.toml
 
 # Copy Cargo files first for better caching
 COPY Cargo.toml Cargo.lock build.rs ./
