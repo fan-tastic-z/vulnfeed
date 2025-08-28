@@ -87,6 +87,7 @@ impl Worker {
         if VulnInformationDao::fetch_by_key(&mut tx, &req.key)
             .await?
             .is_none()
+            && !req.cve.is_empty()
         {
             req.github_search = search_github_poc(&req.cve).await;
         }
