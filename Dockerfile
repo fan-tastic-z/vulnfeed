@@ -49,6 +49,9 @@ COPY Cargo.toml Cargo.lock build.rs ./
 # Copy source code
 COPY src/ src/
 
+# Copy migrations
+COPY migrations/ migrations/
+
 # Copy frontend build output
 COPY --from=frontend-build /app/public/ public/
 
