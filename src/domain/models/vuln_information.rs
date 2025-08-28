@@ -20,6 +20,7 @@ pub struct VulnInformation {
     pub tags: Vec<String>,
     pub github_search: Vec<String>,
     pub source: String,
+    pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
     pub created_at: DateTime<Utc>,
@@ -39,6 +40,7 @@ pub struct CreateVulnInformation {
     pub tags: Vec<String>,
     pub github_search: Vec<String>,
     pub source: String,
+    pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
 }
@@ -68,7 +70,7 @@ pub struct SearchParams {
     pub cve: Option<String>,
     pub title: Option<String>,
     pub pushed: Option<bool>,
-    pub source: Option<String>,
+    pub source_name: Option<String>,
 }
 
 impl SearchParams {
@@ -88,8 +90,8 @@ impl SearchParams {
         self.pushed = pushed;
         self
     }
-    pub fn with_source(mut self, source: Option<String>) -> Self {
-        self.source = source;
+    pub fn with_source_name(mut self, source_name: Option<String>) -> Self {
+        self.source_name = source_name;
         self
     }
 }

@@ -56,7 +56,7 @@ export const getVulnerabilities = (params) => {
             cve: params.cve,
             title: params.title,
             pushed: params.pushed,
-            source: params.source,
+            source_name: params.source_name,
         },
     })
 }

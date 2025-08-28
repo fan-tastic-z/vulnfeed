@@ -114,8 +114,8 @@ impl VulnInformationDao {
             query_builder = query_builder.and_where_like("title", title);
         }
 
-        if let Some(source) = &search_params.source {
-            query_builder = query_builder.and_where_like("source", source);
+        if let Some(source_name) = &search_params.source_name {
+            query_builder = query_builder.and_where_like("source_name", source_name);
         }
 
         if let Some(pushed) = &search_params.pushed {
@@ -146,8 +146,8 @@ impl VulnInformationDao {
             query_builder = query_builder.and_where_like("title", title);
         }
 
-        if let Some(source) = &search_params.source {
-            query_builder = query_builder.and_where_like("source", source);
+        if let Some(source_name) = &search_params.source_name {
+            query_builder = query_builder.and_where_like("source_name", source_name);
         }
 
         if let Some(pushed) = &search_params.pushed {

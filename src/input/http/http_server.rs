@@ -2,9 +2,7 @@ use std::{io, net::SocketAddr, time::Duration};
 
 use mea::{shutdown::ShutdownRecv, waitgroup::WaitGroup};
 use poem::{
-    Endpoint, EndpointExt, Route,
-    endpoint::EmbeddedFilesEndpoint,
-    get,
+    Endpoint, EndpointExt, Route, get,
     listener::{Acceptor, Listener, TcpAcceptor, TcpListener},
     post,
 };
@@ -13,6 +11,8 @@ use rust_embed::RustEmbed;
 #[derive(RustEmbed)]
 #[folder = "public/"]
 struct Assets;
+
+use crate::input::http::spa_endpoint::SpaFileEndpoint;
 
 use crate::{
     cli::Ctx,
@@ -96,7 +96,7 @@ pub async fn start_server<S: VulnService + Send + Sync + 'static>(
         let wg_clone = wg.clone();
         let shutdown_clone = shutdown_rx_server.clone();
         let route = Route::new()
-            .nest("/", EmbeddedFilesEndpoint::<Assets>::new())
+            .nest("/", SpaFileEndpoint::<Assets>::new())
             .nest("/api", api_routes::<S>())
             .data(ctx.clone());
         let listen_addr = acceptor.local_addr()[0].clone();
@@ -125,29 +125,29 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
     Route::new()
         .nest("/login", post(login::login::<S>::default()))
         .nest(
-            "/sync_data_task",
+            "/",
             Route::new()
-                .at(
-                    "",
-                    post(sync_data_task::create_or_update_sync_data_task::<S>::default())
-                        .get(sync_data_task::get_sync_data_task::<S>::default()),
+                .nest(
+                    "/vulns",
+                    Route::new()
+                        .at(
+                            "",
+                            get(vuln_information::list_vuln_information::<S>::default()),
+                        )
+                        .at(
+                            "/:id",
+                            get(vuln_information::get_vuln_information_detail::<S>::default()),
+                        ),
+                )
+                .nest("/plugins", Route::new().at("", get(plugin::list_plugins)))
+                .nest(
+                    "/sync_data_task",
+                    Route::new().at(
+                        "",
+                        post(sync_data_task::create_or_update_sync_data_task::<S>::default())
+                            .get(sync_data_task::get_sync_data_task::<S>::default()),
+                    ),
                 )
                 .with(AuthMiddleware::<S>::default()),
-        )
-        .nest("/plugins", Route::new().at("", get(plugin::list_plugins)))
-        .nest(
-            "/",
-            Route::new().nest(
-                "/vulns",
-                Route::new()
-                    .at(
-                        "",
-                        get(vuln_information::list_vuln_information::<S>::default()),
-                    )
-                    .at(
-                        "/:id",
-                        get(vuln_information::get_vuln_information_detail::<S>::default()),
-                    ),
-            ),
         )
 }

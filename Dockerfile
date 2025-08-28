@@ -37,11 +37,9 @@ WORKDIR /app
 # Configure domestic mirror for faster crate downloads
 RUN mkdir -p .cargo && \
     echo '[source.crates-io]' > .cargo/config.toml && \
-    echo 'replace-with = "tuna"' >> .cargo/config.toml && \
-    echo '[source.tuna]' >> .cargo/config.toml && \
-    echo 'registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"' >> .cargo/config.toml && \
-    echo '[net]' >> .cargo/config.toml && \
-    echo 'git-fetch-with-cli = true' >> .cargo/config.toml
+    echo 'replace-with = "chaitin"' >> .cargo/config.toml && \
+    echo '[source.chaitin]' >> .cargo/config.toml && \
+    echo 'registry = "sparse+https://mirror.dev.in.chaitin.net/crates.io-index/"' >> .cargo/config.toml
 
 # Copy Cargo files first for better caching
 COPY Cargo.toml Cargo.lock build.rs ./
@@ -69,25 +67,15 @@ RUN apk add --no-cache ca-certificates wget
 
 WORKDIR /app
 
-# Create non-root user
-RUN adduser -D -s /bin/sh app
-
 # Copy binary
 COPY --from=backend-build /app/target/release/vulnfeed ./vulnfeed
+RUN chmod +x ./vulnfeed
 
 # Copy default config
 COPY dev/config.toml ./config.toml
 
-# Set permissions
-RUN chown -R app:app ./
-USER app
-
 # Expose port
 EXPOSE 9000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:9000/ || exit 1
 
 # Run the application
 CMD ["./vulnfeed", "server", "--config-file", "config.toml"]

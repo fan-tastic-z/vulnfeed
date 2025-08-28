@@ -15,7 +15,7 @@ const VulnerabilityListPage = () => {
     cve: '',
     title: '',
     pushed: '',
-    source: ''  // 存储插件的link字段
+    source_name: ''  // 存储插件的name字段
   })
 
   useEffect(() => {
@@ -78,10 +78,10 @@ const handleFilterChange = (e) => {
 }
 
 const handleSourceFilterChange = (e) => {
-  const selectedLink = e.target.value
+  const selectedName = e.target.value
   setFilters(prev => ({
     ...prev,
-    source: selectedLink
+    source_name: selectedName
   }))
   // 重置页码到第一页
   setPageNo(1)
@@ -93,7 +93,7 @@ const handleSourceFilterChange = (e) => {
       cve: '',
       title: '',
       pushed: '',
-      source: ''
+      source_name: ''
     })
     // 重置页码到第一页
     setPageNo(1)
@@ -172,7 +172,7 @@ const handleSourceFilterChange = (e) => {
             >
               <option value="">全部</option>
               {plugins.map((plugin) => (
-                <option key={plugin.link} value={plugin.link}>
+                <option key={plugin.name} value={plugin.name}>
                   {plugin.display_name}
                 </option>
               ))}

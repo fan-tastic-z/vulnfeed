@@ -29,7 +29,7 @@ pub struct ListVulnInformationRequestBody {
     pub cve: Option<String>,
     pub title: Option<String>,
     pub pushed: Option<bool>,
-    pub source: Option<String>,
+    pub source_name: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -47,7 +47,7 @@ impl ListVulnInformationRequestBody {
         let search_params = SearchParams::new()
             .with_cve(self.cve)
             .with_pushed(self.pushed)
-            .with_source(self.source)
+            .with_source_name(self.source_name)
             .with_title(self.title);
         Ok(ListVulnInformationRequest::new(page_filter, search_params))
     }
@@ -67,6 +67,7 @@ pub struct VulnInformationData {
     pub tags: Vec<String>,
     pub github_search: Vec<String>,
     pub source: String,
+    pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
     pub created_at: DateTime<Utc>,
@@ -88,6 +89,7 @@ impl VulnInformationData {
             tags: vuln.tags,
             github_search: vuln.github_search,
             source: vuln.source,
+            source_name: vuln.source_name,
             reasons: vuln.reasons,
             pushed: vuln.pushed,
             created_at: vuln.created_at,

@@ -60,8 +60,8 @@ impl VulnPlugin for KevPlugin {
             .await?
             .json()
             .await
-            .change_context_lazy(|| {
-                Error::Message(format!("Failed to parse KEV response from {}", KEV_URL))
+            .map_err(|e| {
+                Error::Message(format!("Failed to parse KEV response json object {}", e))
             })?;
         let all_count = kev_list_resp.vulnerabilities.len();
         let item_limit = if page_limit as usize * KEV_PAGE_SIZE > all_count {
@@ -86,6 +86,7 @@ impl VulnPlugin for KevPlugin {
                 reference_links,
                 solutions: vuln.required_action.to_string(),
                 source: self.link.to_string(),
+                source_name: self.name.to_string(),
                 tags: vec![
                     vuln.vendor_project.to_string(),
                     vuln.product.to_string(),

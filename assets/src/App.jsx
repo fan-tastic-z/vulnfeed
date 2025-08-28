@@ -16,25 +16,31 @@ function App() {
         <Route
           path="/"
           element={
-            <Layout>
-              <VulnerabilityListPage />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <VulnerabilityListPage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/vulns"
           element={
-            <Layout>
-              <VulnerabilityListPage />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <VulnerabilityListPage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/vulns/:id"
           element={
-            <Layout>
-              <VulnerabilityDetailPage />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <VulnerabilityDetailPage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
         <Route
@@ -50,9 +56,11 @@ function App() {
         <Route
           path="/plugins"
           element={
-            <Layout>
-              <PluginListPage />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <PluginListPage />
+              </Layout>
+            </ProtectedRoute>
           }
         />
       </Routes>

@@ -152,6 +152,7 @@ impl OscsPlugin {
             reference_links: references,
             solutions,
             source: self.link.clone(),
+            source_name: self.name.to_string(),
             tags: vec![],
             reasons: vec![],
             github_search: vec![],

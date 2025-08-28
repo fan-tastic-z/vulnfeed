@@ -74,6 +74,7 @@ impl VulnPlugin for ThreatBookPlugin {
                 reference_links: Vec::new(),
                 solutions: "".to_string(),
                 source: LINK.to_string(),
+                source_name: self.name.to_string(),
                 tags,
                 reasons: Vec::new(),
                 github_search: vec![],

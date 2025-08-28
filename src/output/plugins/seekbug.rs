@@ -127,7 +127,7 @@ impl SeekBugPlugin {
                 Ok(tag) => tag,
                 Err(e) => {
                     log::warn!("seebug get tag error {}", e);
-                    continue;
+                    "".to_string()
                 }
             };
 
@@ -147,6 +147,7 @@ impl SeekBugPlugin {
                 reference_links: vec![],
                 solutions: "".to_owned(),
                 source: href,
+                source_name: self.name.to_string(),
                 tags,
                 reasons: vec![],
                 github_search: vec![],
