@@ -21,7 +21,7 @@ VulnFeed 是一个用于收集和推送高价值漏洞信息的工具。它从�
 - [x] 支持定时任务
 - [x] 支持钉钉推送
 - [x] 支持根据 CVE 号在`github`上检索近一年的相关代码仓库链接
-- [x] 支持根据 CVE 号在 `nuclei` 上的 PR 记录
+- [x] 支持根据 CVE 号在 `nuclei` PR 记录检索相关记录链接
 
 ## 本地开发
 
@@ -59,7 +59,7 @@ pnpm dev
 
 ## 服务部署
 
-项目已经写好了 `Dockerfiel` 和 `docker-compose.yml`, 可以本地构建服务镜像，这里将前端代码打包到后端服务中，不需要单独的Nginx服务。
+项目已经写好了 `Dockerfile` 和 `docker-compose.yml`, 可以本地构建服务镜像，这里将前端代码打包到后端服务中，不需要单独的Nginx服务。
 
 ```bash
 docker build -t vulnfeed:latest .
