@@ -32,6 +32,3 @@ report.*.json
 
 # logs
 logs/
-
-# public
-public/
