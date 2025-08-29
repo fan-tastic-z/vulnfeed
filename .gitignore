@@ -33,5 +33,5 @@ report.*.json
 # logs
 logs/
 
-# pulic
+# public
 public/
