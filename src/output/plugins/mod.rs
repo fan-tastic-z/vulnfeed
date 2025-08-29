@@ -3,6 +3,7 @@ pub mod kev;
 pub mod oscs;
 pub mod seekbug;
 pub mod threatbook;
+pub mod ti;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
@@ -16,7 +17,7 @@ use crate::{
     errors::Error,
     output::plugins::{
         avd::AVDPlugin, kev::KevPlugin, oscs::OscsPlugin, seekbug::SeekBugPlugin,
-        threatbook::ThreatBookPlugin,
+        threatbook::ThreatBookPlugin, ti::TiPlugin,
     },
 };
 
@@ -29,7 +30,8 @@ pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> Result<(), Error>
     AVDPlugin::try_new(sender.clone())?;
     OscsPlugin::try_new(sender.clone())?;
     SeekBugPlugin::try_new(sender.clone())?;
-    ThreatBookPlugin::try_new(sender)?;
+    ThreatBookPlugin::try_new(sender.clone())?;
+    TiPlugin::try_new(sender)?;
     Ok(())
 }
 

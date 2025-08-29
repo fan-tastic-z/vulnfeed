@@ -2,11 +2,11 @@ pub mod auth;
 pub mod http_client;
 pub mod password_hash;
 pub mod runtime;
+pub mod search;
 pub mod styled;
 pub mod telemetry;
 pub mod util;
 pub mod version;
-pub mod search;
 
 #[track_caller]
 pub fn num_cpus() -> std::num::NonZeroUsize {
