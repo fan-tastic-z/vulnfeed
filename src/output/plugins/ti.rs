@@ -96,14 +96,16 @@ impl TiPlugin {
     }
 
     pub async fn get_ti_one_day_resp(&self) -> Result<TiOneDayResp, Error> {
-        let params = serde_json::json!({});
         let resp: TiOneDayResp = self
             .http_client
-            .post_json(ONE_URL, &params)
-            .await?
+            .get_json(ONE_URL)
+            .await
+            .map_err(|e| Error::Message(format!("ti one day resp get json failed: {e}")))?
             .json()
             .await
-            .map_err(|e| Error::Message(format!("ti one day resp parse json failed: {e}")))?;
+            .change_context_lazy(|| {
+                Error::Message("ti one day resp parse json failed".to_string())
+            })?;
         Ok(resp)
     }
 
@@ -139,9 +141,9 @@ pub struct Data {
     pub vuln_update_count: i32,
     pub key_vuln_add_count: i32,
     pub poc_exp_add_count: i32,
-    pub patch_add_count: i32,
+    // pub patch_add_count: i32,
     pub key_vuln_add: Vec<TiVulnDetail>,
-    pub poc_exp_add: Vec<TiVulnDetail>,
+    // pub poc_exp_add: Vec<TiVulnDetail>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,7 +163,7 @@ pub struct TiVulnDetail {
     pub publish_time: String,
     pub description: String,
     pub description_en: String,
-    pub change_impact: i32,
+    pub change_impact: Option<i32>,
     pub operator_hid: Option<String>,
     pub create_hid: Option<String>,
     pub channel: Option<String>,
