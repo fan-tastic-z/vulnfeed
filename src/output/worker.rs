@@ -54,7 +54,9 @@ impl Worker {
             && config.status
         {
             let vuln = VulnInformationDao::fetch_by_id(&mut tx, id).await?;
-            if let Some(v) = vuln {
+            if let Some(v) = vuln
+                && !v.pushed
+            {
                 let ding = DingBot::try_new(config.access_token, config.secret_token)?;
                 let title = v.title.clone();
                 let msg = match reader_vulninfo(v) {
