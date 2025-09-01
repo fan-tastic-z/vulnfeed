@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Local, NaiveDate, Utc};
+use chrono::{DateTime, Duration, Local, Months, NaiveDate, Utc};
 use error_stack::Result;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -47,4 +47,17 @@ pub fn check_over_two_week(date: &str) -> Result<bool, Error> {
         return Ok(false);
     }
     Ok(true)
+}
+
+pub fn check_over_two_month(publish_data: &str, update_data: &str) -> Result<bool, Error> {
+    let publish = NaiveDate::parse_from_str(publish_data, "%Y-%m-%d")
+        .map_err(|e| Error::Message(format!("parse date error: {:?}", e)))?;
+    let update = NaiveDate::parse_from_str(update_data, "%Y-%m-%d")
+        .map_err(|e| Error::Message(format!("parse date error: {:?}", e)))?;
+
+    let publish_plus_two_months = publish
+        .checked_add_months(Months::new(2))
+        .ok_or_else(|| Error::Message("date calculation overflow".to_string()))?;
+
+    Ok(update >= publish_plus_two_months)
 }

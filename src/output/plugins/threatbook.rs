@@ -8,7 +8,7 @@ use crate::{
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
-    utils::http_client::HttpClient,
+    utils::{http_client::HttpClient, util::check_over_two_month},
 };
 
 const HOME_PAGE_URL: &str = "https://x.threatbook.com/v5/node/vul_module/homePage";
@@ -63,6 +63,11 @@ impl VulnPlugin for ThreatBookPlugin {
             if v.solution {
                 tags.push("有修复方案".to_string());
             }
+            let mut pushed = false;
+            if let Some(publish_date) = v.vuln_publish_time {
+                pushed = check_over_two_month(publish_date.as_str(), v.vuln_update_time.as_str())
+                    .unwrap_or_default();
+            }
 
             let data = CreateVulnInformation {
                 key: v.id,
@@ -78,7 +83,7 @@ impl VulnPlugin for ThreatBookPlugin {
                 tags,
                 reasons: Vec::new(),
                 github_search: vec![],
-                pushed: false,
+                pushed,
             };
             self.sender.send(data).change_context_lazy(|| {
                 Error::Message("Failed to send vuln information to channel".to_string())
