@@ -2,11 +2,11 @@ use std::time::SystemTime;
 
 use async_trait::async_trait;
 use base64::{Engine, prelude::BASE64_STANDARD};
-use error_stack::Result;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AppResult,
     errors::Error,
     output::push::MessageBot,
     utils::{http_client::HttpClient, util::calc_hmac_sha256},
@@ -24,7 +24,7 @@ pub struct DingBot {
 
 #[async_trait]
 impl MessageBot for DingBot {
-    async fn push_markdown(&self, title: String, msg: String) -> Result<(), Error> {
+    async fn push_markdown(&self, title: String, msg: String) -> AppResult<()> {
         let msg = msg.replace("\n\n", "\n\n&nbsp;\n");
         let message = serde_json::json!({
             "msgtype": MSG_TYPE,
@@ -62,7 +62,7 @@ impl MessageBot for DingBot {
 }
 
 impl DingBot {
-    pub fn try_new(access_token: String, secret_token: String) -> Result<Self, Error> {
+    pub fn try_new(access_token: String, secret_token: String) -> AppResult<Self> {
         let mut headers = header::HeaderMap::new();
         headers.insert("Accept-Charset", header::HeaderValue::from_static("utf8"));
         let http_client = HttpClient::try_new_with_headers(headers)?;
@@ -73,7 +73,7 @@ impl DingBot {
         })
     }
 
-    pub fn generate_sign(&self) -> Result<Sign, Error> {
+    pub fn generate_sign(&self) -> AppResult<Sign> {
         let timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .map_err(|e| Error::Message(format!("get timestamp failed: {}", e)))?

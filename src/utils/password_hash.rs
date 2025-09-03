@@ -2,11 +2,11 @@ use argon2::{
     Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 
-use crate::errors::Error;
+use crate::{AppResult, errors::Error};
 
-pub fn compute_password_hash(password: &str) -> Result<String, Error> {
+pub fn compute_password_hash(password: &str) -> AppResult<String> {
     let arg2 = Argon2::new(
         argon2::Algorithm::Argon2id,
         argon2::Version::V0x13,

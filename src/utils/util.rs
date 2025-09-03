@@ -1,12 +1,11 @@
 use chrono::{DateTime, Duration, Local, Months, NaiveDate, Utc};
-use error_stack::Result;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use tera::{Context, Tera};
 
-use crate::errors::Error;
+use crate::{AppResult, errors::Error};
 
-pub fn timestamp_to_date(timestamp: i64) -> Result<String, Error> {
+pub fn timestamp_to_date(timestamp: i64) -> AppResult<String> {
     let dt = DateTime::from_timestamp_millis(timestamp);
     if let Some(dt) = dt {
         return Ok(dt.format("%Y-%m-%d").to_string());
@@ -38,7 +37,7 @@ pub fn get_last_year_data() -> String {
     last_year.format("%Y-%m-%d").to_string()
 }
 
-pub fn check_over_two_week(date: &str) -> Result<bool, Error> {
+pub fn check_over_two_week(date: &str) -> AppResult<bool> {
     let target_date = NaiveDate::parse_from_str(date, "%Y-%m-%d")
         .map_err(|e| Error::Message(format!("parse date error: {:?}", e)))?;
     let now = Utc::now().naive_utc().date();

@@ -1,11 +1,12 @@
 use std::{str::FromStr, sync::Arc, time::Instant};
 
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use tokio::task::JoinSet;
 use tokio_cron_scheduler::JobScheduler;
 use uuid::Uuid;
 
 use crate::{
+    AppResult,
     errors::Error,
     output::{
         db::{pg::Pg, sync_data_task::SyncDataTaskDao},
@@ -19,7 +20,7 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    pub async fn try_new(pg: Pg) -> Result<Self, Error> {
+    pub async fn try_new(pg: Pg) -> AppResult<Self> {
         let sched = JobScheduler::new()
             .await
             .change_context_lazy(|| Error::Message("Failed to create scheduler".to_string()))?;
@@ -29,7 +30,7 @@ impl Scheduler {
         })
     }
 
-    fn create_job(&self, interval_minutes: i32) -> Result<tokio_cron_scheduler::Job, Error> {
+    fn create_job(&self, interval_minutes: i32) -> AppResult<tokio_cron_scheduler::Job> {
         let cron_syntax = format!("0 */{} * * * *", interval_minutes);
         log::debug!("Creating job with cron syntax: {}", cron_syntax);
         let job =
@@ -49,7 +50,7 @@ impl Scheduler {
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         task: &crate::domain::models::sync_data_task::SyncDataTask,
         job: tokio_cron_scheduler::Job,
-    ) -> Result<(), Error> {
+    ) -> AppResult<()> {
         let new_job_id = self.sched.add(job).await.change_context_lazy(|| {
             Error::Message("Failed to add new job to scheduler".to_string())
         })?;
@@ -57,7 +58,7 @@ impl Scheduler {
         Ok(())
     }
 
-    async fn remove_existing_job(&self, job_id: &str) -> Result<Option<Uuid>, Error> {
+    async fn remove_existing_job(&self, job_id: &str) -> AppResult<Option<Uuid>> {
         let job_id = Uuid::from_str(job_id)
             .change_context_lazy(|| Error::Message("Failed to parse job ID".to_string()))?;
         self.sched.remove(&job_id).await.change_context_lazy(|| {
@@ -70,7 +71,7 @@ impl Scheduler {
         Ok(Some(job_id))
     }
 
-    pub async fn update(&self, id: i64) -> Result<(), Error> {
+    pub async fn update(&self, id: i64) -> AppResult<()> {
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -96,7 +97,7 @@ impl Scheduler {
         }
     }
 
-    pub async fn init_from_db(self) -> Result<Self, Error> {
+    pub async fn init_from_db(self) -> AppResult<Self> {
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())

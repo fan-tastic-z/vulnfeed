@@ -1,6 +1,7 @@
 use std::{path::PathBuf, sync::Arc};
 
 use crate::{
+    AppResult,
     config::settings::{Config, LoadConfigResult, load_config},
     domain::{
         models::{
@@ -27,7 +28,7 @@ use crate::{
     },
 };
 use clap::ValueHint;
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 
 #[derive(Clone)]
 pub struct Ctx<S: VulnService + Send + Sync + 'static> {
@@ -44,7 +45,7 @@ pub struct CommandStart {
 }
 
 impl CommandStart {
-    pub fn run(self) -> Result<(), Error> {
+    pub fn run(self) -> AppResult<()> {
         error_stack::Report::set_color_mode(error_stack::fmt::ColorMode::None);
         let LoadConfigResult { config, warnings } = load_config(self.config_file)?;
         let telemetry_runtime = make_telemetry_runtime();
@@ -56,11 +57,14 @@ impl CommandStart {
         }
         log::info!("server is starting with config: {config:#?}");
         let server_runtime = make_vulnfeed_runtime();
-        server_runtime.block_on(run_server(&server_runtime, config))
+        server_runtime
+            .block_on(run_server(&server_runtime, config))
+            .change_context(Error::Message("failed to start server".to_string()))?;
+        Ok(())
     }
 }
 
-async fn run_server(server_rt: &Runtime, config: Config) -> Result<(), Error> {
+async fn run_server(server_rt: &Runtime, config: Config) -> AppResult<()> {
     let make_error = || Error::Message("failed to start server".to_string());
     let (shutdown_tx, shutdown_rx) = mea::shutdown::new_pair();
     let (acceptor, advertise_addr) = make_acceptor_and_advertise_addr(
@@ -134,7 +138,7 @@ pub struct CreateSuperUser {
 }
 
 impl CreateSuperUser {
-    pub fn run(self) -> Result<(), Error> {
+    pub fn run(self) -> AppResult<()> {
         error_stack::Report::set_color_mode(error_stack::fmt::ColorMode::None);
         let LoadConfigResult { config, warnings } = load_config(self.config_file)?;
         let telemetry_runtime = make_telemetry_runtime();
@@ -145,11 +149,14 @@ impl CreateSuperUser {
             log::warn!("{warning}");
         }
         let init_data_runtime = make_init_data_runtime();
-        init_data_runtime.block_on(run_create_super_user(config, self.password))
+        init_data_runtime
+            .block_on(run_create_super_user(config, self.password))
+            .change_context_lazy(|| Error::Message("failed to create super user".to_string()))?;
+        Ok(())
     }
 }
 
-async fn run_create_super_user(config: Config, password: String) -> Result<(), Error> {
+async fn run_create_super_user(config: Config, password: String) -> AppResult<()> {
     let make_error = || Error::Message("failed to create super user".to_string());
     let password_hash = compute_password_hash(&password).change_context_lazy(make_error)?;
     let db = Pg::new(&config).await.change_context_lazy(make_error)?;

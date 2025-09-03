@@ -7,14 +7,13 @@ pub mod ti;
 
 use async_trait::async_trait;
 use dashmap::DashMap;
-use error_stack::Result;
 use lazy_static::lazy_static;
 use mea::mpsc::UnboundedSender;
 use std::sync::Arc;
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::CreateVulnInformation,
-    errors::Error,
     output::plugins::{
         avd::AVDPlugin, kev::KevPlugin, oscs::OscsPlugin, seekbug::SeekBugPlugin,
         threatbook::ThreatBookPlugin, ti::TiPlugin,
@@ -25,7 +24,7 @@ lazy_static! {
     static ref PLUGINS: Arc<DashMap<String, Box<dyn VulnPlugin>>> = Arc::new(DashMap::new());
 }
 
-pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> Result<(), Error> {
+pub fn init(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<()> {
     KevPlugin::try_new(sender.clone())?;
     AVDPlugin::try_new(sender.clone())?;
     OscsPlugin::try_new(sender.clone())?;
@@ -40,7 +39,7 @@ pub trait VulnPlugin: Send + Sync + 'static {
     fn get_name(&self) -> String;
     fn get_display_name(&self) -> String;
     fn get_link(&self) -> String;
-    async fn update(&self, page_limit: i32) -> Result<(), Error>;
+    async fn update(&self, page_limit: i32) -> AppResult<()>;
 }
 
 pub fn register_plugin(name: String, plugin: Box<dyn VulnPlugin>) {

@@ -1,10 +1,11 @@
 use async_trait::async_trait;
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -36,13 +37,13 @@ impl VulnPlugin for TiPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, _page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, _page_limit: i32) -> AppResult<()> {
         self.get_vuln_infos().await
     }
 }
 
 impl TiPlugin {
-    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> Result<TiPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<TiPlugin> {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             "Referer",
@@ -65,7 +66,7 @@ impl TiPlugin {
         Ok(ti)
     }
 
-    pub async fn get_vuln_infos(&self) -> Result<(), Error> {
+    pub async fn get_vuln_infos(&self) -> AppResult<()> {
         let ti_one_day_resp = self.get_ti_one_day_resp().await?;
         for detail in ti_one_day_resp.data.key_vuln_add {
             let tags = self.get_tags(detail.tag);
@@ -95,7 +96,7 @@ impl TiPlugin {
         Ok(())
     }
 
-    pub async fn get_ti_one_day_resp(&self) -> Result<TiOneDayResp, Error> {
+    pub async fn get_ti_one_day_resp(&self) -> AppResult<TiOneDayResp> {
         let resp: TiOneDayResp = self
             .http_client
             .get_json(ONE_URL)
@@ -141,9 +142,7 @@ pub struct Data {
     pub vuln_update_count: i32,
     pub key_vuln_add_count: i32,
     pub poc_exp_add_count: i32,
-    // pub patch_add_count: i32,
     pub key_vuln_add: Vec<TiVulnDetail>,
-    // pub poc_exp_add: Vec<TiVulnDetail>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,9 +1,8 @@
-use error_stack::Result;
 use sqlx::{Postgres, Transaction};
 
 use crate::{
+    AppResult,
     domain::models::ding_bot::{CreateDingBotRequest, DingBotConfig},
-    errors::Error,
     output::db::base::{Dao, dao_create, dao_first, dao_update},
 };
 
@@ -17,7 +16,7 @@ impl DingBotConfigDao {
     pub async fn create(
         tx: &mut Transaction<'_, Postgres>,
         req: CreateDingBotRequest,
-    ) -> Result<i64, Error> {
+    ) -> AppResult<i64> {
         let ding_bot_config: Option<DingBotConfig> = dao_first::<Self, _>(tx).await?;
         if let Some(config) = ding_bot_config {
             dao_update::<Self, _>(tx, config.id, req).await?;
@@ -27,7 +26,7 @@ impl DingBotConfigDao {
         Ok(ret)
     }
 
-    pub async fn first(tx: &mut Transaction<'_, Postgres>) -> Result<Option<DingBotConfig>, Error> {
+    pub async fn first(tx: &mut Transaction<'_, Postgres>) -> AppResult<Option<DingBotConfig>> {
         let ding_bot_config = dao_first::<Self, _>(tx).await?;
         Ok(ding_bot_config)
     }

@@ -1,10 +1,11 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -25,7 +26,7 @@ pub struct KevPlugin {
 }
 
 impl KevPlugin {
-    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> Result<KevPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<KevPlugin> {
         let http_client = HttpClient::try_new()?;
         let kv = KevPlugin {
             name: "KevPlugin".to_string(),
@@ -53,7 +54,7 @@ impl VulnPlugin for KevPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, page_limit: i32) -> AppResult<()> {
         let kev_list_resp: KevResp = self
             .http_client
             .get_json(KEV_URL)

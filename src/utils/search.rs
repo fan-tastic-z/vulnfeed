@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::{errors::Error, utils::util::get_last_year_data};
+use crate::{AppResult, errors::Error, utils::util::get_last_year_data};
 
 pub async fn search_github_poc(cve_id: &str) -> Vec<String> {
     let mut res = Vec::new();
@@ -20,7 +20,7 @@ pub async fn search_github_poc(cve_id: &str) -> Vec<String> {
     res
 }
 
-pub async fn search_nuclei_pr(cve_id: &str) -> Result<Vec<String>, Error> {
+pub async fn search_nuclei_pr(cve_id: &str) -> AppResult<Vec<String>> {
     log::info!("search nuclei PR of {}", cve_id);
     let page = octocrab::instance()
         .pulls("projectdiscovery", "nuclei-templates")
@@ -45,7 +45,7 @@ pub async fn search_nuclei_pr(cve_id: &str) -> Result<Vec<String>, Error> {
     Ok(links)
 }
 
-pub async fn search_github_repo(cve_id: &str) -> Result<Vec<String>, Error> {
+pub async fn search_github_repo(cve_id: &str) -> AppResult<Vec<String>> {
     log::info!("search github repo of {}", cve_id);
     let last_year = get_last_year_data();
     let query = format!(

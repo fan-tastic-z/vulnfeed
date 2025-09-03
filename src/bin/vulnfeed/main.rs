@@ -1,8 +1,6 @@
 use clap::Parser;
-use error_stack::Result;
 use vulnfeed::{
-    cli,
-    errors::Error,
+    AppResult, cli,
     utils::{styled::styled, version::version},
 };
 
@@ -14,7 +12,7 @@ struct Command {
 }
 
 impl Command {
-    pub fn run(self) -> Result<(), Error> {
+    pub fn run(self) -> AppResult<()> {
         match self.cmd {
             SubCommand::Server(cmd) => cmd.run(),
             SubCommand::CreateSuperUser(cmd) => cmd.run(),
@@ -28,7 +26,7 @@ enum SubCommand {
     CreateSuperUser(cli::CreateSuperUser),
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> AppResult<()> {
     let cmd = Command::parse();
     cmd.run()
 }
