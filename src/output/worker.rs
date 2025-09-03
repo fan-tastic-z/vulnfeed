@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedReceiver;
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::CreateVulnInformation,
     errors::Error,
     output::{
@@ -26,7 +27,7 @@ impl Worker {
         }
     }
 
-    pub async fn run(&mut self) -> Result<(), Error> {
+    pub async fn run(&mut self) -> AppResult<()> {
         while let Some(req) = self.receiver.recv().await {
             match self.store(req).await {
                 Err(e) => {
@@ -43,7 +44,7 @@ impl Worker {
         Ok(())
     }
 
-    pub async fn ding_bot_push(&self, id: i64) -> Result<(), Error> {
+    pub async fn ding_bot_push(&self, id: i64) -> AppResult<()> {
         log::info!("ding bot push start! id: {}", id);
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
@@ -81,7 +82,7 @@ impl Worker {
         Ok(())
     }
 
-    pub async fn store(&self, mut req: CreateVulnInformation) -> Result<(i64, bool), Error> {
+    pub async fn store(&self, mut req: CreateVulnInformation) -> AppResult<(i64, bool)> {
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())

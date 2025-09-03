@@ -1,10 +1,10 @@
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use sqlx::{
     Pool, Postgres,
     postgres::{PgConnectOptions, PgPoolOptions},
 };
 
-use crate::{config::settings::Config, errors::Error};
+use crate::{AppResult, config::settings::Config, errors::Error};
 
 #[derive(Debug, Clone)]
 pub struct Pg {
@@ -12,7 +12,7 @@ pub struct Pg {
 }
 
 impl Pg {
-    pub async fn new(config: &Config) -> Result<Self, Error> {
+    pub async fn new(config: &Config) -> AppResult<Self> {
         let opts = PgConnectOptions::new()
             .host(&config.database.host)
             .port(config.database.port)

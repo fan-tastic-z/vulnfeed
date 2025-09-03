@@ -1,10 +1,11 @@
 use std::{path::PathBuf, str::FromStr};
 
-use error_stack::{Result, ResultExt, bail};
+use error_stack::{ResultExt, bail};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
 use toml_edit::DocumentMut;
 
+use crate::AppResult;
 use crate::errors::Error;
 
 pub struct LoadConfigResult {
@@ -12,7 +13,7 @@ pub struct LoadConfigResult {
     pub warnings: Vec<String>,
 }
 
-pub fn load_config(config_file: PathBuf) -> Result<LoadConfigResult, Error> {
+pub fn load_config(config_file: PathBuf) -> AppResult<LoadConfigResult> {
     let content = std::fs::read_to_string(&config_file).change_context_lazy(|| {
         Error::Message(format!(
             "failed to read config file {}",

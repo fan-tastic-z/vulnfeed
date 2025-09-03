@@ -1,6 +1,7 @@
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 
 use crate::{
+    AppResult,
     domain::{
         models::{
             admin_user::AdminUser,
@@ -23,7 +24,7 @@ use crate::{
 };
 
 impl VulnRepository for Pg {
-    async fn login(&self, req: &LoginRequest) -> Result<AdminUser, Error> {
+    async fn login(&self, req: &LoginRequest) -> AppResult<AdminUser> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -40,7 +41,7 @@ impl VulnRepository for Pg {
         Err(Error::BadRequest("invalid account or password".to_string()).into())
     }
 
-    async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
+    async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> AppResult<i64> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -52,7 +53,7 @@ impl VulnRepository for Pg {
         Ok(sync_data_task_id)
     }
 
-    async fn get_sync_data_task(&self) -> Result<Option<SyncDataTask>, Error> {
+    async fn get_sync_data_task(&self) -> AppResult<Option<SyncDataTask>> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -67,7 +68,7 @@ impl VulnRepository for Pg {
     async fn list_vuln_information(
         &self,
         req: ListVulnInformationRequest,
-    ) -> Result<ListVulnInformationResponseData, Error> {
+    ) -> AppResult<ListVulnInformationResponseData> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -91,7 +92,7 @@ impl VulnRepository for Pg {
     async fn get_vuln_information(
         &self,
         req: GetVulnInformationRequest,
-    ) -> Result<Option<VulnInformation>, Error> {
+    ) -> AppResult<Option<VulnInformation>> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -103,7 +104,7 @@ impl VulnRepository for Pg {
         Ok(vuln_information)
     }
 
-    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> Result<i64, Error> {
+    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> AppResult<i64> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
@@ -115,7 +116,7 @@ impl VulnRepository for Pg {
         Ok(id)
     }
 
-    async fn get_ding_bot_config(&self) -> Result<Option<DingBotConfig>, Error> {
+    async fn get_ding_bot_config(&self) -> AppResult<Option<DingBotConfig>> {
         let mut tx =
             self.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())

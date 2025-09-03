@@ -1,10 +1,11 @@
 use async_trait::async_trait;
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -37,7 +38,7 @@ impl VulnPlugin for ThreatBookPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, _page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, _page_limit: i32) -> AppResult<()> {
         let home_page_resp: ThreadBookHomePage = self
             .http_client
             .get_json(HOME_PAGE_URL)
@@ -94,9 +95,7 @@ impl VulnPlugin for ThreatBookPlugin {
 }
 
 impl ThreatBookPlugin {
-    pub fn try_new(
-        sender: UnboundedSender<CreateVulnInformation>,
-    ) -> Result<ThreatBookPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<ThreatBookPlugin> {
         let mut headers: reqwest::header::HeaderMap = header::HeaderMap::new();
         headers.insert("Referer", header::HeaderValue::from_static(LINK));
         headers.insert(

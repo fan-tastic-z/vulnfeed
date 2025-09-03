@@ -1,10 +1,11 @@
 use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -40,7 +41,7 @@ impl VulnPlugin for OscsPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, page_limit: i32) -> AppResult<()> {
         let mut page_count = self.get_page_count().await?;
         if page_count > page_limit {
             page_count = page_limit;
@@ -53,7 +54,7 @@ impl VulnPlugin for OscsPlugin {
 }
 
 impl OscsPlugin {
-    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> Result<OscsPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<OscsPlugin> {
         let http_client = HttpClient::try_new()?;
         let oscs = OscsPlugin {
             name: "OscsPlugin".to_string(),
@@ -66,7 +67,7 @@ impl OscsPlugin {
         Ok(oscs)
     }
 
-    pub async fn get_list_resp(&self, page: i32, per_page: i32) -> Result<OscsListResp, Error> {
+    pub async fn get_list_resp(&self, page: i32, per_page: i32) -> AppResult<OscsListResp> {
         let params = serde_json::json!({
             "page": page,
             "per_page": per_page,
@@ -81,7 +82,7 @@ impl OscsPlugin {
         Ok(oscs_list_resp)
     }
 
-    pub async fn get_page_count(&self) -> Result<i32, Error> {
+    pub async fn get_page_count(&self) -> AppResult<i32> {
         let oscs_list_resp = self
             .get_list_resp(OSCS_PAGE_DEFAULT, OSCS_PER_PAGE_DEFAULT)
             .await?;
@@ -99,7 +100,7 @@ impl OscsPlugin {
         Ok(page_count)
     }
 
-    pub async fn parse_page(&self, page: i32) -> Result<(), Error> {
+    pub async fn parse_page(&self, page: i32) -> AppResult<()> {
         let oscs_list_resp = self.get_list_resp(page, OSCS_PAGE_SIZE).await?;
         for item in oscs_list_resp.data.data {
             let mut tags = Vec::new();
@@ -126,7 +127,7 @@ impl OscsPlugin {
         Ok(())
     }
 
-    pub async fn parse_detail(&self, mps: &str) -> Result<CreateVulnInformation, Error> {
+    pub async fn parse_detail(&self, mps: &str) -> AppResult<CreateVulnInformation> {
         let detail = self.get_detail_resp(mps).await?;
         if detail.code != 200 || !detail.success || detail.data.is_empty() {
             return Err(Error::Message(format!("oscs get: {} detail error", mps)).into());
@@ -179,7 +180,7 @@ impl OscsPlugin {
         }
     }
 
-    async fn get_detail_resp(&self, mps: &str) -> Result<OscsDetailResp, Error> {
+    async fn get_detail_resp(&self, mps: &str) -> AppResult<OscsDetailResp> {
         let params = serde_json::json!({
             "vuln_no": mps,
         });

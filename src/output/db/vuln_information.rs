@@ -1,13 +1,12 @@
-use error_stack::Result;
 use sea_query::Value;
 use sqlx::{Postgres, Transaction};
 
 use crate::{
+    AppResult,
     domain::models::{
         page_utils::PageFilter,
         vuln_information::{CreateVulnInformation, SearchParams, VulnInformation},
     },
-    errors::Error,
     output::db::base::{
         Dao, DaoQueryBuilder, dao_create, dao_fetch_by_column, dao_fetch_by_id, dao_update,
         dao_update_field,
@@ -29,7 +28,7 @@ impl VulnInformationDao {
         tx: &mut Transaction<'_, Postgres>,
         id: i64,
         status: bool,
-    ) -> Result<u64, Error> {
+    ) -> AppResult<u64> {
         let row = dao_update_field::<Self>(tx, id, "pushed", Value::Bool(Some(status))).await?;
         Ok(row)
     }
@@ -37,7 +36,7 @@ impl VulnInformationDao {
     pub async fn create(
         tx: &mut Transaction<'_, Postgres>,
         req: CreateVulnInformation,
-    ) -> Result<i64, Error> {
+    ) -> AppResult<i64> {
         let id = dao_create::<Self, _>(tx, req).await?;
         Ok(id)
     }
@@ -91,7 +90,7 @@ impl VulnInformationDao {
     pub async fn create_or_update(
         tx: &mut Transaction<'_, Postgres>,
         mut req: CreateVulnInformation,
-    ) -> Result<(i64, bool), Error> {
+    ) -> AppResult<(i64, bool)> {
         let mut as_new_vuln = false;
         if let Some(mut vuln) =
             dao_fetch_by_column::<Self, VulnInformation>(tx, "key", &req.key).await?
@@ -118,7 +117,7 @@ impl VulnInformationDao {
         tx: &mut Transaction<'_, Postgres>,
         page_filter: &PageFilter,
         search_params: &SearchParams,
-    ) -> Result<Vec<VulnInformation>, Error> {
+    ) -> AppResult<Vec<VulnInformation>> {
         let mut query_builder = DaoQueryBuilder::<Self>::new();
 
         if let Some(title) = &search_params.title {
@@ -150,7 +149,7 @@ impl VulnInformationDao {
     pub async fn filter_vulnfusion_information_count(
         tx: &mut Transaction<'_, Postgres>,
         search_params: &SearchParams,
-    ) -> Result<i64, Error> {
+    ) -> AppResult<i64> {
         let mut query_builder = DaoQueryBuilder::<Self>::new();
 
         if let Some(title) = &search_params.title {
@@ -175,14 +174,14 @@ impl VulnInformationDao {
     pub async fn fetch_by_id(
         tx: &mut Transaction<'_, Postgres>,
         id: i64,
-    ) -> Result<Option<VulnInformation>, Error> {
+    ) -> AppResult<Option<VulnInformation>> {
         dao_fetch_by_id::<Self, VulnInformation>(tx, id).await
     }
 
     pub async fn fetch_by_key(
         tx: &mut Transaction<'_, Postgres>,
         key: &str,
-    ) -> Result<Option<VulnInformation>, Error> {
+    ) -> AppResult<Option<VulnInformation>> {
         dao_fetch_by_column::<Self, VulnInformation>(tx, "key", key).await
     }
 }

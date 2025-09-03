@@ -1,4 +1,4 @@
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use jsonwebtoken::{
     Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode,
     get_current_timestamp,
@@ -6,7 +6,7 @@ use jsonwebtoken::{
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use crate::errors::Error;
+use crate::{AppResult, errors::Error};
 
 const JWT_ALGORITHM: Algorithm = Algorithm::HS512;
 
@@ -42,7 +42,7 @@ impl JWT {
         expiration: u64,
         user_id: i64,
         claims: Map<String, Value>,
-    ) -> Result<String, Error> {
+    ) -> AppResult<String> {
         let exp = get_current_timestamp().saturating_add(expiration);
 
         let claims = UserClaims {
@@ -62,7 +62,7 @@ impl JWT {
         Ok(token)
     }
 
-    pub fn validate(&self, token: &str) -> Result<TokenData<UserClaims>, Error> {
+    pub fn validate(&self, token: &str) -> AppResult<TokenData<UserClaims>> {
         let mut validate = Validation::new(self.algorithm);
         validate.leeway = 0;
 

@@ -1,4 +1,4 @@
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use modql::{SIden, field::HasSeaFields};
 use sea_query::{
     Alias, Asterisk, Condition, Expr, Iden, IntoIden, OnConflict, PostgresQueryBuilder, Query,
@@ -7,7 +7,7 @@ use sea_query::{
 use sea_query_binder::SqlxBinder;
 use sqlx::{FromRow, Postgres, Row, Transaction};
 
-use crate::errors::Error;
+use crate::{AppResult, errors::Error};
 
 pub trait Dao {
     const TABLE: &'static str;
@@ -21,7 +21,7 @@ pub enum CommonIden {
     Id,
 }
 
-pub async fn dao_create<D, E>(tx: &mut Transaction<'_, Postgres>, req: E) -> Result<i64, Error>
+pub async fn dao_create<D, E>(tx: &mut Transaction<'_, Postgres>, req: E) -> AppResult<i64>
 where
     E: HasSeaFields,
     D: Dao,
@@ -45,7 +45,7 @@ where
     Ok(id)
 }
 
-pub async fn dao_first<D, T>(tx: &mut Transaction<'_, Postgres>) -> Result<Option<T>, Error>
+pub async fn dao_first<D, T>(tx: &mut Transaction<'_, Postgres>) -> AppResult<Option<T>>
 where
     D: Dao,
     T: for<'r> FromRow<'r, sqlx::postgres::PgRow> + Unpin + Send,
@@ -68,7 +68,7 @@ pub async fn dao_upsert<D, E>(
     req: E,
     conflict_column: &str,
     update_columns: &[&str],
-) -> Result<i64, Error>
+) -> AppResult<i64>
 where
     E: HasSeaFields,
     D: Dao,
@@ -114,7 +114,7 @@ pub async fn dao_fetch_by_column<D, T>(
     tx: &mut Transaction<'_, Postgres>,
     column_name: &str,
     value: &str,
-) -> Result<Option<T>, Error>
+) -> AppResult<Option<T>>
 where
     D: Dao,
     T: for<'r> FromRow<'r, sqlx::postgres::PgRow> + Unpin + Send,
@@ -134,11 +134,7 @@ where
 
     Ok(result)
 }
-pub async fn dao_update<D, E>(
-    tx: &mut Transaction<'_, Postgres>,
-    id: i64,
-    req: E,
-) -> Result<u64, Error>
+pub async fn dao_update<D, E>(tx: &mut Transaction<'_, Postgres>, id: i64, req: E) -> AppResult<u64>
 where
     E: HasSeaFields,
     D: Dao,
@@ -173,7 +169,7 @@ pub async fn dao_update_field<D>(
     id: i64,
     field_name: &str,
     field_value: impl Into<sea_query::Value>,
-) -> Result<u64, Error>
+) -> AppResult<u64>
 where
     D: Dao,
 {
@@ -198,7 +194,7 @@ where
 pub async fn dao_fetch_by_id<D, T>(
     tx: &mut Transaction<'_, Postgres>,
     id: i64,
-) -> Result<Option<T>, Error>
+) -> AppResult<Option<T>>
 where
     D: Dao,
     T: for<'r> FromRow<'r, sqlx::postgres::PgRow> + Unpin + Send,
@@ -284,7 +280,7 @@ impl<D: Dao> DaoQueryBuilder<D> {
         self
     }
 
-    pub async fn fetch_all<T>(self, tx: &mut Transaction<'_, Postgres>) -> Result<Vec<T>, Error>
+    pub async fn fetch_all<T>(self, tx: &mut Transaction<'_, Postgres>) -> AppResult<Vec<T>>
     where
         T: for<'r> FromRow<'r, sqlx::postgres::PgRow> + Unpin + Send,
     {
@@ -299,7 +295,7 @@ impl<D: Dao> DaoQueryBuilder<D> {
         Ok(result)
     }
 
-    pub async fn count(self, tx: &mut Transaction<'_, Postgres>) -> Result<i64, Error> {
+    pub async fn count(self, tx: &mut Transaction<'_, Postgres>) -> AppResult<i64> {
         let mut count_query = Query::select();
         count_query
             .from(D::table_ref())

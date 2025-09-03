@@ -1,4 +1,5 @@
 use crate::{
+    AppResult,
     domain::{
         models::{
             admin_user::AdminUser,
@@ -12,9 +13,7 @@ use crate::{
         },
         ports::{VulnRepository, VulnService},
     },
-    errors::Error,
 };
-use error_stack::Result;
 
 #[derive(Debug, Clone)]
 pub struct Service<R>
@@ -37,16 +36,16 @@ impl<R> VulnService for Service<R>
 where
     R: VulnRepository,
 {
-    async fn login(&self, req: &LoginRequest) -> Result<AdminUser, Error> {
+    async fn login(&self, req: &LoginRequest) -> AppResult<AdminUser> {
         let res = self.repo.login(req).await?;
         Ok(res)
     }
-    async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> Result<i64, Error> {
+    async fn create_sync_data_task(&self, req: CreateSyncDataTaskRequest) -> AppResult<i64> {
         let ret = self.repo.create_sync_data_task(req).await?;
         Ok(ret)
     }
 
-    async fn get_sync_data_task(&self) -> Result<Option<SyncDataTask>, Error> {
+    async fn get_sync_data_task(&self) -> AppResult<Option<SyncDataTask>> {
         let ret = self.repo.get_sync_data_task().await?;
         Ok(ret)
     }
@@ -54,25 +53,25 @@ where
     async fn list_vulnfusion_information(
         &self,
         req: ListVulnInformationRequest,
-    ) -> Result<ListVulnInformationResponseData, Error> {
-        let ret = self.repo.list_vuln_information(req).await?; // Implement the logic here
+    ) -> AppResult<ListVulnInformationResponseData> {
+        let ret = self.repo.list_vuln_information(req).await?;
         Ok(ret)
     }
 
     async fn get_vuln_information(
         &self,
         req: GetVulnInformationRequest,
-    ) -> Result<Option<VulnInformation>, Error> {
+    ) -> AppResult<Option<VulnInformation>> {
         let ret = self.repo.get_vuln_information(req).await?;
         Ok(ret)
     }
 
-    async fn get_ding_bot_config(&self) -> Result<Option<DingBotConfig>, Error> {
+    async fn get_ding_bot_config(&self) -> AppResult<Option<DingBotConfig>> {
         let ret = self.repo.get_ding_bot_config().await?;
         Ok(ret)
     }
 
-    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> Result<i64, Error> {
+    async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> AppResult<i64> {
         let ret = self.repo.create_ding_bot_config(req).await?;
         Ok(ret)
     }

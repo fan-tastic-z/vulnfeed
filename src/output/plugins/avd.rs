@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use regex::Regex;
 use reqwest::Url;
@@ -8,6 +8,7 @@ use scraper::{Html, Selector};
 use serde_json::{Value, json};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -41,7 +42,7 @@ impl VulnPlugin for AVDPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, page_limit: i32) -> AppResult<()> {
         let mut page_count = self.get_page_count().await?;
         if page_count > page_limit {
             page_count = page_limit;
@@ -67,7 +68,7 @@ impl VulnPlugin for AVDPlugin {
 }
 
 impl AVDPlugin {
-    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> Result<AVDPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<AVDPlugin> {
         let http_client = HttpClient::try_new()?;
         let avd = AVDPlugin {
             name: "AVDPlugin".to_string(),
@@ -80,7 +81,7 @@ impl AVDPlugin {
         Ok(avd)
     }
 
-    pub async fn get_page_count(&self) -> Result<i32, Error> {
+    pub async fn get_page_count(&self) -> AppResult<i32> {
         let new_url = self.waf_bypass(&self.link).await?;
         let content = self.http_client.get_html_content(&new_url).await?;
 
@@ -101,7 +102,7 @@ impl AVDPlugin {
         }
     }
 
-    pub async fn parse_page(&self, page: i32) -> Result<Vec<CreateVulnInformation>, Error> {
+    pub async fn parse_page(&self, page: i32) -> AppResult<Vec<CreateVulnInformation>> {
         let page_url = format!("{}?page={}", self.link, page);
         let document = self.get_document(&page_url).await?;
         let detail_links = self.get_detail_links(document)?;
@@ -116,7 +117,7 @@ impl AVDPlugin {
         Ok(res)
     }
 
-    fn get_detail_links(&self, document: Html) -> Result<Vec<String>, Error> {
+    fn get_detail_links(&self, document: Html) -> AppResult<Vec<String>> {
         let src_url_selector = Selector::parse("tbody tr td a")
             .map_err(|err| Error::Message(format!("selector parse error: {}", err)))?;
 
@@ -128,7 +129,7 @@ impl AVDPlugin {
         Ok(detail_links)
     }
 
-    pub async fn parse_detail_page(&self, href: &str) -> Result<CreateVulnInformation, Error> {
+    pub async fn parse_detail_page(&self, href: &str) -> AppResult<CreateVulnInformation> {
         let detail_url = format!("https://avd.aliyun.com{}", href);
 
         let document = self.get_document(&detail_url).await?;
@@ -180,7 +181,7 @@ impl AVDPlugin {
         Ok(data)
     }
 
-    fn get_avd_id(&self, detail_url: &str) -> Result<String, Error> {
+    fn get_avd_id(&self, detail_url: &str) -> AppResult<String> {
         let url = Url::parse(detail_url)
             .map_err(|err| Error::Message(format!("avd get detail url parse error {}", err)))?;
         let avd_id = url
@@ -204,7 +205,7 @@ impl AVDPlugin {
         Ok(references)
     }
 
-    fn get_solutions(&self, document: &Html) -> Result<String, Error> {
+    fn get_solutions(&self, document: &Html) -> AppResult<String> {
         let solutions_selector = Selector::parse(".text-detail").map_err(|err| {
             Error::Message(format!("avd get solutions selector parse error {}", err))
         })?;
@@ -219,7 +220,7 @@ impl AVDPlugin {
         Ok(solutions)
     }
 
-    fn get_description(&self, document: &Html) -> Result<String, Error> {
+    fn get_description(&self, document: &Html) -> AppResult<String> {
         let description_selector = Selector::parse(".text-detail div").map_err(|err| {
             Error::Message(format!("avd get description selector parse error {}", err))
         })?;
@@ -231,7 +232,7 @@ impl AVDPlugin {
         Ok(description)
     }
 
-    fn get_title(&self, document: &Html) -> Result<String, Error> {
+    fn get_title(&self, document: &Html) -> AppResult<String> {
         let title_selector = Selector::parse("h5[class='header__title'] .header__title__text")
             .map_err(|err| Error::Message(format!("avd get title selector parse error {}", err)))?;
         let title = document
@@ -244,7 +245,7 @@ impl AVDPlugin {
         Ok(title)
     }
 
-    fn get_severity(&self, document: &Html) -> Result<Severity, Error> {
+    fn get_severity(&self, document: &Html) -> AppResult<Severity> {
         let level_selector = Selector::parse("h5[class='header__title'] .badge")
             .map_err(|err| Error::Message(format!("avd get level selector parse error {}", err)))?;
         let level = document
@@ -264,7 +265,7 @@ impl AVDPlugin {
         Ok(severity)
     }
 
-    fn get_mertric_value(&self, document: &Html, index: usize) -> Result<String, Error> {
+    fn get_mertric_value(&self, document: &Html, index: usize) -> AppResult<String> {
         let value_selector = Selector::parse(".metric-value").map_err(|e| {
             Error::Message(format!("avd get metric value selector parse error {}", e))
         })?;
@@ -278,7 +279,7 @@ impl AVDPlugin {
         Ok(metric_value)
     }
 
-    fn get_cve_id(&self, document: &Html) -> Result<String, Error> {
+    fn get_cve_id(&self, document: &Html) -> AppResult<String> {
         let mut cve_id = self.get_mertric_value(document, 0)?;
         if !Regex::new(CVEID_REGEXP)
             .change_context_lazy(|| Error::Message("avd get cve id regex parse error".to_string()))?
@@ -289,22 +290,22 @@ impl AVDPlugin {
         Ok(cve_id)
     }
 
-    fn get_utilization(&self, document: &Html) -> Result<String, Error> {
+    fn get_utilization(&self, document: &Html) -> AppResult<String> {
         self.get_mertric_value(document, 1)
     }
 
-    fn get_disclosure(&self, document: &Html) -> Result<String, Error> {
+    fn get_disclosure(&self, document: &Html) -> AppResult<String> {
         self.get_mertric_value(document, 3)
     }
 
-    async fn get_document(&self, url: &str) -> Result<Html, Error> {
+    async fn get_document(&self, url: &str) -> AppResult<Html> {
         let new_url = self.waf_bypass(url).await?;
         let content = self.http_client.get_html_content(&new_url).await?;
         let document = Html::parse_document(&content);
         Ok(document)
     }
 
-    async fn waf_bypass(&self, target_url: &str) -> Result<String, Error> {
+    async fn waf_bypass(&self, target_url: &str) -> AppResult<String> {
         let script_content = self.get_script_content(target_url).await?;
         if script_content.is_empty() {
             return Err(Error::Message("waf bypass script not found".to_string()).into());
@@ -355,12 +356,12 @@ impl AVDPlugin {
         _window: Value,
         _document: Value,
         location: Value,
-    ) -> Result<String, Error> {
+    ) -> AppResult<String> {
         let runtime = Runtime::new()
             .map_err(|e| Error::Message(format!("execution script runtime new error {}", e)))?;
         let context = Context::full(&runtime)
             .map_err(|e| Error::Message(format!("execution script context full error {}", e)))?;
-        context.with(|ctx| -> Result<String,Error> {
+        context.with(|ctx| -> AppResult<String> {
             let href = location["href"].as_str().unwrap_or("");
             let parsed_url = Url::parse(href)
                 .map_err(|e| Error::Message(format!("url parsing error {}", e)))?;
@@ -479,7 +480,7 @@ impl AVDPlugin {
         })
     }
 
-    async fn get_script_content(&self, target_url: &str) -> Result<String, Error> {
+    async fn get_script_content(&self, target_url: &str) -> AppResult<String> {
         let origin_content = self.http_client.get_html_content(target_url).await?;
         let script_regex = Regex::new(SCRIPT_REGEXP)
             .map_err(|e| Error::Message(format!("avd get script regex parse error {}", e)))?;

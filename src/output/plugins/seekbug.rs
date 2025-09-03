@@ -1,9 +1,10 @@
 use async_trait::async_trait;
-use error_stack::{Result, ResultExt};
+use error_stack::ResultExt;
 use mea::mpsc::UnboundedSender;
 use scraper::{ElementRef, Html, Selector};
 
 use crate::{
+    AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
     output::plugins::{VulnPlugin, register_plugin},
@@ -35,7 +36,7 @@ impl VulnPlugin for SeekBugPlugin {
         self.link.to_string()
     }
 
-    async fn update(&self, page_limit: i32) -> Result<(), Error> {
+    async fn update(&self, page_limit: i32) -> AppResult<()> {
         let mut page_count = self.get_page_count().await?;
         if page_count > page_limit {
             page_count = page_limit;
@@ -48,7 +49,7 @@ impl VulnPlugin for SeekBugPlugin {
 }
 
 impl SeekBugPlugin {
-    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> Result<SeekBugPlugin, Error> {
+    pub fn try_new(sender: UnboundedSender<CreateVulnInformation>) -> AppResult<SeekBugPlugin> {
         let http_client = HttpClient::try_new()?;
         let seebug = SeekBugPlugin {
             name: "SeeBugPlugin".to_string(),
@@ -61,7 +62,7 @@ impl SeekBugPlugin {
         Ok(seebug)
     }
 
-    pub async fn get_page_count(&self) -> Result<i32, Error> {
+    pub async fn get_page_count(&self) -> AppResult<i32> {
         let document = self.get_document(SEEBUG_LIST_URL).await?;
         let selector = Selector::parse("ul.pagination li a")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
@@ -78,7 +79,7 @@ impl SeekBugPlugin {
         Ok(total)
     }
 
-    pub async fn parse_page(&self, page: i32) -> Result<(), Error> {
+    pub async fn parse_page(&self, page: i32) -> AppResult<()> {
         let url = format!("{}?page={}", SEEBUG_LIST_URL, page);
         let document = self.get_document(&url).await?;
         let selector = Selector::parse(".sebug-table tbody tr")
@@ -169,13 +170,13 @@ impl SeekBugPlugin {
         }
     }
 
-    async fn get_document(&self, url: &str) -> Result<Html, Error> {
+    async fn get_document(&self, url: &str) -> AppResult<Html> {
         let content = self.http_client.get_html_content(url).await?;
         let document = Html::parse_document(&content);
         Ok(document)
     }
 
-    fn get_href(&self, el: ElementRef) -> Result<(String, String), Error> {
+    fn get_href(&self, el: ElementRef) -> AppResult<(String, String)> {
         let selector = Selector::parse("td a")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let a_element = el
@@ -193,7 +194,7 @@ impl SeekBugPlugin {
         Ok((href.to_owned(), unique_key.to_owned()))
     }
 
-    fn get_disclosure(&self, el: ElementRef) -> Result<String, Error> {
+    fn get_disclosure(&self, el: ElementRef) -> AppResult<String> {
         let selector = Selector::parse("td")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let disclosure = el
@@ -205,7 +206,7 @@ impl SeekBugPlugin {
         Ok(disclosure)
     }
 
-    fn get_severity_title(&self, el: ElementRef) -> Result<String, Error> {
+    fn get_severity_title(&self, el: ElementRef) -> AppResult<String> {
         let selector = Selector::parse("td div")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let td_element = el
@@ -220,7 +221,7 @@ impl SeekBugPlugin {
         Ok(severity_title.to_owned())
     }
 
-    fn get_title(&self, el: ElementRef) -> Result<String, Error> {
+    fn get_title(&self, el: ElementRef) -> AppResult<String> {
         let selector = Selector::parse("td a[class='vul-title']")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let title = el
@@ -231,7 +232,7 @@ impl SeekBugPlugin {
         Ok(title)
     }
 
-    fn get_cve_id(&self, el: ElementRef) -> Result<String, Error> {
+    fn get_cve_id(&self, el: ElementRef) -> AppResult<String> {
         let selector = Selector::parse("td i[class='fa fa-id-card ']")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let cve_ids = el
@@ -252,7 +253,7 @@ impl SeekBugPlugin {
         Ok(cve_ids.to_string())
     }
 
-    fn get_tag(&self, el: ElementRef) -> Result<String, Error> {
+    fn get_tag(&self, el: ElementRef) -> AppResult<String> {
         let selector = Selector::parse("td .fa-file-text-o")
             .map_err(|err| Error::Message(format!("parse html error {}", err)))?;
         let tag = el
