@@ -161,7 +161,7 @@ impl AVDPlugin {
         let solutions = self.get_solutions(&document)?;
 
         let references = self.get_references(&document)?;
-
+        let detail_link = format!("https://avd.aliyun.com/detail?id={}", avd_id);
         let data = CreateVulnInformation {
             key: avd_id,
             title,
@@ -177,6 +177,7 @@ impl AVDPlugin {
             reasons: vec![],
             github_search: vec![],
             pushed: false,
+            detail_link,
         };
         Ok(data)
     }

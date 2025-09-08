@@ -137,7 +137,8 @@ impl SeekBugPlugin {
             if !tag.is_empty() {
                 tags.push(tag)
             }
-
+            let ssivd = unique_key.split('-').next_back().unwrap_or("").to_string();
+            let detail_link = format!("https://www.seebug.org/vuldb/{}", ssivd);
             let data = CreateVulnInformation {
                 key: unique_key,
                 title,
@@ -153,6 +154,7 @@ impl SeekBugPlugin {
                 reasons: vec![],
                 github_search: vec![],
                 pushed: false,
+                detail_link,
             };
             self.sender.send(data).change_context_lazy(|| {
                 Error::Message("Failed to send vuln information to channel".to_string())

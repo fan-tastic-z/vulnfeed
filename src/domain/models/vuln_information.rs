@@ -25,6 +25,7 @@ pub struct VulnInformation {
     pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
+    pub detail_link: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -45,6 +46,7 @@ pub struct CreateVulnInformation {
     pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
+    pub detail_link: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -71,7 +71,7 @@ impl TiPlugin {
         for detail in ti_one_day_resp.data.key_vuln_add {
             let tags = self.get_tags(detail.tag);
             let severity = self.get_severity(detail.rating_level);
-
+            let detail_link = format!("https://ti.qianxin.com/vulnerability/detail/{}", detail.id);
             let data = CreateVulnInformation {
                 key: detail.qvd_code,
                 title: detail.vuln_name,
@@ -87,6 +87,7 @@ impl TiPlugin {
                 reasons: vec![],
                 github_search: vec![],
                 pushed: false,
+                detail_link,
             };
             self.sender.send(data).change_context_lazy(|| {
                 Error::Message("Failed to send vuln information to channel".to_string())

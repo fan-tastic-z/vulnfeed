@@ -54,24 +54,24 @@ const VulnerabilityDetailPage = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-          <div className="text-red-800 text-sm">
+        <div className="p-4 mb-6 border border-red-200 rounded-md bg-red-50">
+          <div className="text-sm text-red-800">
             {error}
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="flex items-center justify-center h-64">
+          <div className="w-12 h-12 border-b-2 border-indigo-600 rounded-full animate-spin"></div>
         </div>
       ) : vulnerability ? (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h1 className="text-2xl leading-6 font-medium text-gray-900">
+        <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+          <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h1 className="text-2xl font-medium leading-6 text-gray-900">
               {vulnerability.title}
             </h1>
-            <div className="mt-2 flex items-center">
+            <div className="flex items-center mt-2">
               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                 vulnerability.severity === 'Critical' ? 'bg-red-100 text-red-800' :
                 vulnerability.severity === 'High' ? 'bg-orange-100 text-orange-800' :
@@ -88,7 +88,7 @@ const VulnerabilityDetailPage = () => {
           <div className="px-4 py-5 sm:px-6">
             <div className="grid grid-cols-1 gap-y-4 gap-x-8 sm:grid-cols-2">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">基本信息</h3>
+                <h3 className="mb-2 text-lg font-medium text-gray-900">基本信息</h3>
                 <dl className="grid grid-cols-1 gap-y-2">
                   <div>
                     <dt className="text-sm font-medium text-gray-500">漏洞编号</dt>
@@ -104,15 +104,32 @@ const VulnerabilityDetailPage = () => {
                     <dt className="text-sm font-medium text-gray-500">来源</dt>
                     <dd className="mt-1 text-sm text-gray-900">{vulnerability.source}</dd>
                   </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">详情链接</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {vulnerability.detail_link ? (
+                        <a
+                          href={vulnerability.detail_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-600 hover:text-indigo-800"
+                        >
+                          {vulnerability.detail_link}
+                        </a>
+                      ) : (
+                        'N/A'
+                      )}
+                    </dd>
+                  </div>
                 </dl>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">标签</h3>
+                <h3 className="mb-2 text-lg font-medium text-gray-900">标签</h3>
                 <div className="flex flex-wrap gap-2">
                   {vulnerability.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
+                      className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full"
                     >
                       {tag}
                     </span>
@@ -122,14 +139,14 @@ const VulnerabilityDetailPage = () => {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">描述</h3>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">描述</h3>
               <p className="text-sm text-gray-900 whitespace-pre-wrap">
                 {vulnerability.description}
               </p>
             </div>
 
             <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">解决方案</h3>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">解决方案</h3>
               <p className="text-sm text-gray-900 whitespace-pre-wrap">
                 {vulnerability.solutions || '暂无解决方案信息'}
               </p>
@@ -137,8 +154,8 @@ const VulnerabilityDetailPage = () => {
 
             {vulnerability.reference_links && vulnerability.reference_links.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">参考链接</h3>
-                <ul className="list-disc list-inside text-sm text-gray-900">
+                <h3 className="mb-2 text-lg font-medium text-gray-900">参考链接</h3>
+                <ul className="text-sm text-gray-900 list-disc list-inside">
                   {vulnerability.reference_links.map((link, index) => (
                     <li key={index} className="mb-1">
                       <a
@@ -157,8 +174,8 @@ const VulnerabilityDetailPage = () => {
 
             {vulnerability.github_search && vulnerability.github_search.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">GitHub搜索</h3>
-                <ul className="list-disc list-inside text-sm text-gray-900">
+                <h3 className="mb-2 text-lg font-medium text-gray-900">GitHub搜索</h3>
+                <ul className="text-sm text-gray-900 list-disc list-inside">
                   {vulnerability.github_search.map((search, index) => (
                     <li key={index} className="mb-1">
                       {search}
@@ -169,8 +186,8 @@ const VulnerabilityDetailPage = () => {
             )}
 
             <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">触发原因</h3>
-              <ul className="list-disc list-inside text-sm text-gray-900">
+              <h3 className="mb-2 text-lg font-medium text-gray-900">触发原因</h3>
+              <ul className="text-sm text-gray-900 list-disc list-inside">
                 {vulnerability.reasons.map((reason, index) => (
                   <li key={index} className="mb-1">
                     {reason}
@@ -179,7 +196,7 @@ const VulnerabilityDetailPage = () => {
               </ul>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 mt-6 gap-y-2 sm:grid-cols-2">
               <div>
                 <dt className="text-sm font-medium text-gray-500">创建时间</dt>
                 <dd className="mt-1 text-sm text-gray-900">
@@ -196,7 +213,7 @@ const VulnerabilityDetailPage = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="overflow-hidden bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
             <div className="text-center text-gray-500">
               未找到漏洞信息

@@ -78,12 +78,16 @@ impl Scheduler {
             })?;
         let sync_data_task = SyncDataTaskDao::first(&mut tx).await?;
         if let Some(task) = sync_data_task {
-            if let Some(job_id) = &task.job_id {
-                self.remove_existing_job(job_id).await?;
+            if let Some(job_id) = &task.job_id
+                && let Err(e) = self.remove_existing_job(job_id).await
+            {
+                log::warn!("Failed to remove existing job: {}", e.as_error());
+            }
+            if task.status {
+                let job = self.create_job(task.interval_minutes)?;
+                self.add_job_and_update_db(&mut tx, &task, job).await?;
             }
 
-            let job = self.create_job(task.interval_minutes)?;
-            self.add_job_and_update_db(&mut tx, &task, job).await?;
             tx.commit().await.change_context_lazy(|| {
                 Error::Message("Failed to commit transaction".to_string())
             })?;

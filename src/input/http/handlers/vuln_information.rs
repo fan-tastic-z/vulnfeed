@@ -70,6 +70,7 @@ pub struct VulnInformationData {
     pub source_name: String,
     pub reasons: Vec<String>,
     pub pushed: bool,
+    pub detail_link: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -92,6 +93,7 @@ impl VulnInformationData {
             source_name: vuln.source_name,
             reasons: vuln.reasons,
             pushed: vuln.pushed,
+            detail_link: vuln.detail_link,
             created_at: vuln.created_at,
             updated_at: vuln.updated_at,
         }
