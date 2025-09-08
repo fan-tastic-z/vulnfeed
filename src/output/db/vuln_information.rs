@@ -42,7 +42,7 @@ impl VulnInformationDao {
     }
 
     /// 检查漏洞严重性是否发生变化，如果变化则记录日志并添加变更原因
-    fn check_severity_update(vuln: &mut VulnInformation, req: &CreateVulnInformation) -> bool {
+    fn check_severity_update(vuln: &VulnInformation, req: &mut CreateVulnInformation) -> bool {
         let severity = vuln.severity.to_string();
         if severity != req.severity {
             log::info!(
@@ -58,7 +58,7 @@ impl VulnInformationDao {
                 vuln.severity.as_str(),
                 req.severity
             );
-            vuln.reasons.push(reason);
+            req.reasons.push(reason);
             true
         } else {
             false
@@ -66,7 +66,7 @@ impl VulnInformationDao {
     }
 
     /// 检查漏洞标签是否发生变化，如果变化则记录日志并添加变更原因
-    fn check_tag_update(vuln: &mut VulnInformation, req: &CreateVulnInformation) -> bool {
+    fn check_tag_update(vuln: &VulnInformation, req: &mut CreateVulnInformation) -> bool {
         let new_tags = req
             .tags
             .iter()
@@ -80,7 +80,7 @@ impl VulnInformationDao {
                 new_tags
             );
             let reason = format!("{}: {:?} => {:?}", REASON_TAG_UPDATED, vuln.tags, req.tags);
-            vuln.reasons.push(reason);
+            req.reasons.push(reason);
             true
         } else {
             false
@@ -92,11 +92,11 @@ impl VulnInformationDao {
         mut req: CreateVulnInformation,
     ) -> AppResult<(i64, bool)> {
         let mut as_new_vuln = false;
-        if let Some(mut vuln) =
+        if let Some(vuln) =
             dao_fetch_by_column::<Self, VulnInformation>(tx, "key", &req.key).await?
         {
-            as_new_vuln |= VulnInformationDao::check_severity_update(&mut vuln, &req);
-            as_new_vuln |= VulnInformationDao::check_tag_update(&mut vuln, &req);
+            as_new_vuln |= VulnInformationDao::check_severity_update(&vuln, &mut req);
+            as_new_vuln |= VulnInformationDao::check_tag_update(&vuln, &mut req);
             if as_new_vuln {
                 req.pushed = false;
                 dao_update::<Self, _>(tx, vuln.id, req).await?;
