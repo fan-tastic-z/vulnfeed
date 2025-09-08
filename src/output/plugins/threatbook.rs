@@ -69,7 +69,7 @@ impl VulnPlugin for ThreatBookPlugin {
                 pushed = check_over_two_month(publish_date.as_str(), v.vuln_update_time.as_str())
                     .unwrap_or_default();
             }
-
+            let detail_link = format!("https://x.threatbook.com/v5/vul/{}", v.id);
             let data = CreateVulnInformation {
                 key: v.id,
                 title: v.vuln_name_zh,
@@ -85,6 +85,7 @@ impl VulnPlugin for ThreatBookPlugin {
                 reasons: Vec::new(),
                 github_search: vec![],
                 pushed,
+                detail_link,
             };
             self.sender.send(data).change_context_lazy(|| {
                 Error::Message("Failed to send vuln information to channel".to_string())

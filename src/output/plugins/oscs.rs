@@ -142,7 +142,7 @@ impl OscsPlugin {
             .collect::<Vec<_>>();
 
         let solutions = self.get_solutions(data.soulution_data);
-
+        let detail_link = format!("https://www.oscs1024.com/hd/{}", data.vuln_no);
         let data = CreateVulnInformation {
             key: data.vuln_no,
             title: data.vuln_title,
@@ -158,6 +158,7 @@ impl OscsPlugin {
             reasons: vec![],
             github_search: vec![],
             pushed: false,
+            detail_link,
         };
         Ok(data)
     }

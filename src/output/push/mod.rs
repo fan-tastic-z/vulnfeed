@@ -30,6 +30,7 @@ const VULN_INFO_MSG_TEMPLATE: &str = r####"
 - 披露日期: **{{ disclosure }}**
 - 推送原因: {{ reasons | join(sep=" ") }}
 - 信息来源: [{{ source }}]
+- 详情链接: {{ detail_link }}
 
 {% if description %}### **漏洞描述**
 {{ description }}

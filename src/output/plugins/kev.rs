@@ -77,6 +77,7 @@ impl VulnPlugin for KevPlugin {
             if !vuln.notes.is_empty() {
                 reference_links.push(vuln.notes.to_string())
             }
+            let detail_link = format!("https://www.cve.org/CVERecord?id={}", vuln.cve_id);
             let create_vuln_information_req = CreateVulnInformation {
                 key: format!("{}_KEV", vuln.cve_id),
                 title: vuln.vulnerability_name.to_string(),
@@ -96,6 +97,7 @@ impl VulnPlugin for KevPlugin {
                 github_search: vec![],
                 reasons: vec![],
                 pushed: false,
+                detail_link,
             };
             self.sender
                 .send(create_vuln_information_req)
