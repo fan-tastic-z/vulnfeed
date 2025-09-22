@@ -6,7 +6,9 @@ use lazy_static::lazy_static;
 use serde_json::Value;
 
 use crate::{
-    AppResult, domain::models::vuln_information::VulnInformation, errors::Error,
+    AppResult,
+    domain::models::{security_notice::SecuritNotice, vuln_information::VulnInformation},
+    errors::Error,
     utils::util::render_string,
 };
 
@@ -46,15 +48,33 @@ const VULN_INFO_MSG_TEMPLATE: &str = r####"
 {% if github_search | length > 0 %}{% for link in github_search %}{{ loop.index }}. {{ link }}
 {% endfor %}{% else %}暂未找到{% endif %}{% endif %}"####;
 
+const SEC_NOTICE_MSG_TEMPLATE: &str = r####"
+# {{ title }}
+
+- 危害定级: **{{ risk_level }}**
+- 披露日期: **{{ publish_time }}**
+- ZeroDay: **{{ is_zero_day }}**
+- 产品名称: {{ product_name }}
+- 信息来源: {{ source }}
+- 详情链接: {{ detail_link }}
+"####;
+
 const MAX_REFERENCE_LENGTH: usize = 8;
 
-pub fn reader_vulninfo(mut vuln: VulnInformation) -> AppResult<String> {
+pub fn render_vulninfo(mut vuln: VulnInformation) -> AppResult<String> {
     if vuln.reference_links.len() > MAX_REFERENCE_LENGTH {
         vuln.reference_links = vuln.reference_links[..MAX_REFERENCE_LENGTH].to_vec();
     }
     let json_value: Value = serde_json::to_value(vuln)
         .map_err(|e| Error::Message(format!("Failed to serialize vuln info: {e}")))?;
     let markdown = render_string(VULN_INFO_MSG_TEMPLATE, &json_value)?;
+    Ok(markdown)
+}
+
+pub fn render_sec_notice(sec_notice: SecuritNotice) -> AppResult<String> {
+    let json_value: Value = serde_json::to_value(sec_notice)
+        .map_err(|e| Error::Message(format!("Failed to serialize sec notice: {e}")))?;
+    let markdown = render_string(SEC_NOTICE_MSG_TEMPLATE, &json_value)?;
     Ok(markdown)
 }
 

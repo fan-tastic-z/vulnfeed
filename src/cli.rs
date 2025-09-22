@@ -6,6 +6,7 @@ use crate::{
     domain::{
         models::{
             admin_user::{AdminUserPassword, AdminUsername, CreateAdminUserRequest},
+            security_notice::CreateSecurityNotice,
             vuln_information::CreateVulnInformation,
         },
         ports::VulnService,
@@ -15,8 +16,9 @@ use crate::{
     input::http::http_server::{self, make_acceptor_and_advertise_addr},
     output::{
         db::{admin_user::AdminUserDao, pg::Pg},
-        plugins,
+        plugins::{sec_notice, vuln},
         scheduler::Scheduler,
+        sec_notcie_worker::SecNoticeWorker,
         worker::Worker,
     },
     utils::{
@@ -84,10 +86,16 @@ async fn run_server(server_rt: &Runtime, config: Config) -> AppResult<()> {
         .change_context_lazy(make_error)?;
 
     let (sender, receiver) = mea::mpsc::unbounded::<CreateVulnInformation>();
-    plugins::init(sender).change_context_lazy(make_error)?;
+    vuln::init(sender).change_context_lazy(make_error)?;
 
     let mut worker = Worker::new(receiver, db.clone());
     server_rt.spawn(async move { worker.run().await });
+
+    let (sec_sender, sec_receiver) = mea::mpsc::unbounded::<CreateSecurityNotice>();
+    sec_notice::init(sec_sender).change_context_lazy(make_error)?;
+
+    let mut sec_worker = SecNoticeWorker::new(sec_receiver, db.clone());
+    server_rt.spawn(async move { sec_worker.run().await });
 
     let sched = Scheduler::try_new(db.clone())
         .await

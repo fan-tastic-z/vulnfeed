@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     input::http::response::{ApiError, ApiSuccess},
-    output::plugins::get_registry,
+    output::plugins::vuln::get_registry,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
