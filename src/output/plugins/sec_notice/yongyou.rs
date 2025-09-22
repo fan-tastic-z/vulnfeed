@@ -13,7 +13,7 @@ use crate::{
 
 const YONGYOU_NOTICE_URL: &str = "https://security.yonyou.com/web-api/web/notice/page";
 const YONGYOU_DEFAULT_PAGE_NO: i32 = 1;
-const YONGYOU_DEFAULT_PAGE_SIZE: i32 = 5;
+const YONGYOU_DEFAULT_PAGE_SIZE: i32 = 3;
 
 #[derive(Debug, Clone)]
 pub struct YongYouNoticePlugin {
@@ -26,14 +26,14 @@ pub struct YongYouNoticePlugin {
 #[async_trait]
 impl SecNoticePlugin for YongYouNoticePlugin {
     fn get_name(&self) -> String {
-        todo!()
+        self.name.to_string()
     }
 
     async fn update(&self, _page_limit: i32) -> AppResult<()> {
         let sec_notices = self
             .get_sec_notices(YONGYOU_DEFAULT_PAGE_NO, YONGYOU_DEFAULT_PAGE_SIZE)
             .await?;
-        for sec_notice in sec_notices.data {
+        for sec_notice in sec_notices.data.list {
             let detail_link = format!(
                 "https://security.yonyou.com/#/noticeInfo?id={}",
                 sec_notice.id
@@ -45,7 +45,7 @@ impl SecNoticePlugin for YongYouNoticePlugin {
                 detail_link,
                 source: self.link.clone(),
                 source_name: self.get_name(),
-                product_name: sec_notice.product_name,
+                product_name: sec_notice.product_line_name,
                 is_zero_day: self.is_zero_day(&sec_notice.is_zero_day),
                 publish_time: sec_notice.publish_time,
                 risk_level,
@@ -111,18 +111,25 @@ impl YongYouNoticePlugin {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ListYongYouSecNotices {
     code: i32,
-    data: Vec<YongYouNotice>,
+    data: YongYouNoticeData,
     msg: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct YongYouNoticeData {
+    list: Vec<YongYouNotice>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct YongYouNotice {
     pub id: i32,
     pub notice: String,
     pub identifier: String,
-    pub product_name: String,
+    pub product_line_name: String,
     pub publish_time: String,
     pub risk_level: String,
     pub is_zero_day: String,

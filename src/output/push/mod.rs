@@ -55,7 +55,6 @@ const SEC_NOTICE_MSG_TEMPLATE: &str = r####"
 - 披露日期: **{{ publish_time }}**
 - ZeroDay: **{{ is_zero_day }}**
 - 产品名称: {{ product_name }}
-- 信息来源: {{ source }}
 - 详情链接: {{ detail_link }}
 "####;
 
