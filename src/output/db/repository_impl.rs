@@ -7,6 +7,7 @@ use crate::{
             admin_user::AdminUser,
             auth::LoginRequest,
             ding_bot::{CreateDingBotRequest, DingBotConfig},
+            security_notice::{ListSecNoticeRequest, ListSecNoticeResponseData},
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{
                 GetVulnInformationRequest, ListVulnInformationRequest,
@@ -18,7 +19,8 @@ use crate::{
     errors::Error,
     output::db::{
         admin_user::AdminUserDao, ding_bot_config::DingBotConfigDao, pg::Pg,
-        sync_data_task::SyncDataTaskDao, vuln_information::VulnInformationDao,
+        security_notice::SecurityNoticeDao, sync_data_task::SyncDataTaskDao,
+        vuln_information::VulnInformationDao,
     },
     utils::password_hash::verify_password_hash,
 };
@@ -126,5 +128,27 @@ impl VulnRepository for Pg {
             .await
             .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
         Ok(ding_bot_config)
+    }
+    async fn list_sec_notice(
+        &self,
+        req: ListSecNoticeRequest,
+    ) -> AppResult<ListSecNoticeResponseData> {
+        let mut tx =
+            self.pool.begin().await.change_context_lazy(|| {
+                Error::Message("failed to begin transaction".to_string())
+            })?;
+        let data = SecurityNoticeDao::filter_security_notices(
+            &mut tx,
+            &req.page_filter,
+            &req.search_params,
+        )
+        .await?;
+        let count =
+            SecurityNoticeDao::filter_security_notices_count(&mut tx, &req.search_params).await?;
+
+        tx.commit()
+            .await
+            .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
+        Ok(ListSecNoticeResponseData { data, total: count })
     }
 }

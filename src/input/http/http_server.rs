@@ -18,7 +18,7 @@ use crate::{
     cli::Ctx,
     domain::ports::VulnService,
     input::http::{
-        handlers::{login, plugin, sync_data_task, vuln_information},
+        handlers::{login, plugin, sec_notice, sync_data_task, vuln_information},
         middleware::auth::AuthMiddleware,
     },
     utils::runtime::{self, Runtime},
@@ -155,6 +155,10 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                         post(ding_bot_config::create_or_update_ding_bot_config::<S>::default())
                             .get(ding_bot_config::get_ding_bot_config::<S>::default()),
                     ),
+                )
+                .nest(
+                    "/sec_notice",
+                    Route::new().at("", get(sec_notice::list_sec_notice::<S>::default())),
                 )
                 .with(AuthMiddleware::<S>::default()),
         )
