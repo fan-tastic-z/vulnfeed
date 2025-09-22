@@ -6,6 +6,7 @@ import VulnerabilityDetailPage from './routes/vuln/detail'
 import SyncDataTaskPage from './routes/sync/task'
 import PluginListPage from './routes/plugins/list'
 import DingBotConfigPage from './routes/dingbot/config'
+import SecNoticeListPage from './routes/secnotice/list'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 
@@ -70,6 +71,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <DingBotConfigPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/secnotice"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SecNoticeListPage />
               </Layout>
             </ProtectedRoute>
           }
