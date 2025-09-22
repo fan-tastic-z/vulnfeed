@@ -4,6 +4,7 @@ use crate::{
         admin_user::AdminUser,
         auth::LoginRequest,
         ding_bot::{CreateDingBotRequest, DingBotConfig},
+        security_notice::{ListSecNoticeRequest, ListSecNoticeResponseData},
         sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
         vuln_information::{
             GetVulnInformationRequest, ListVulnInformationRequest, ListVulnInformationResponseData,
@@ -37,6 +38,11 @@ pub trait VulnService: Clone + Send + Sync + 'static {
     ) -> impl Future<Output = AppResult<i64>> + Send;
 
     fn get_ding_bot_config(&self) -> impl Future<Output = AppResult<Option<DingBotConfig>>> + Send;
+
+    fn list_sec_notice(
+        &self,
+        req: ListSecNoticeRequest,
+    ) -> impl Future<Output = AppResult<ListSecNoticeResponseData>> + Send;
 }
 
 pub trait VulnRepository: Clone + Send + Sync + 'static {
@@ -64,4 +70,9 @@ pub trait VulnRepository: Clone + Send + Sync + 'static {
     ) -> impl Future<Output = AppResult<i64>> + Send;
 
     fn get_ding_bot_config(&self) -> impl Future<Output = AppResult<Option<DingBotConfig>>> + Send;
+
+    fn list_sec_notice(
+        &self,
+        req: ListSecNoticeRequest,
+    ) -> impl Future<Output = AppResult<ListSecNoticeResponseData>> + Send;
 }

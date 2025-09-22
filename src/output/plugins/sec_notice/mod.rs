@@ -1,0 +1,40 @@
+pub mod yongyou;
+
+use std::sync::Arc;
+
+use async_trait::async_trait;
+use dashmap::DashMap;
+use lazy_static::lazy_static;
+use mea::mpsc::UnboundedSender;
+
+use crate::{
+    AppResult, domain::models::security_notice::CreateSecurityNotice,
+    output::plugins::sec_notice::yongyou::YongYouNoticePlugin,
+};
+
+lazy_static! {
+    static ref NOTICE: Arc<DashMap<String, Box<dyn SecNoticePlugin>>> = Arc::new(DashMap::new());
+}
+
+pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
+    YongYouNoticePlugin::try_new(sender.clone())?;
+    Ok(())
+}
+
+#[async_trait]
+pub trait SecNoticePlugin: Send + Sync + 'static {
+    fn get_name(&self) -> String;
+    async fn update(&self, page_limit: i32) -> AppResult<()>;
+}
+
+pub fn register_sec_notice(name: String, sec_notice: Box<dyn SecNoticePlugin>) {
+    NOTICE.insert(name, sec_notice);
+}
+
+pub fn get_notice_registry() -> Arc<DashMap<String, Box<dyn SecNoticePlugin>>> {
+    NOTICE.clone()
+}
+
+pub fn list_sec_notice_names() -> Vec<String> {
+    NOTICE.iter().map(|r| r.key().clone()).collect()
+}

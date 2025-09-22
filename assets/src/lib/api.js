@@ -91,4 +91,17 @@ export const createOrUpdateDingBotConfig = (data) => {
     return api.post('/ding_bot_config', data)
 }
 
+// 获取安全公告列表
+export const getSecNotices = (params) => {
+    return api.get('/sec_notice', {
+        params: {
+            page_no: params.pageNo,
+            page_size: params.pageSize,
+            title: params.title,
+            pushed: params.pushed,
+            source_name: params.source_name,
+        },
+    })
+}
+
 export default api

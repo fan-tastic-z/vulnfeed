@@ -5,23 +5,22 @@ use mea::mpsc::UnboundedReceiver;
 
 use crate::{
     AppResult,
-    domain::models::vuln_information::CreateVulnInformation,
+    domain::models::security_notice::CreateSecurityNotice,
     errors::Error,
     output::{
-        db::{ding_bot_config::DingBotConfigDao, pg::Pg, vuln_information::VulnInformationDao},
-        push::{MessageBot, ding_bot::DingBot, render_vulninfo},
+        db::{ding_bot_config::DingBotConfigDao, pg::Pg, security_notice::SecurityNoticeDao},
+        push::{MessageBot, ding_bot::DingBot, render_sec_notice},
     },
-    utils::search::search_github_poc,
 };
 
-pub struct Worker {
-    pub receiver: UnboundedReceiver<CreateVulnInformation>,
+pub struct SecNoticeWorker {
+    pub receiver: UnboundedReceiver<CreateSecurityNotice>,
     pub pg: Arc<Pg>,
 }
 
-impl Worker {
-    pub fn new(receiver: UnboundedReceiver<CreateVulnInformation>, pg: Pg) -> Self {
-        Worker {
+impl SecNoticeWorker {
+    pub fn new(receiver: UnboundedReceiver<CreateSecurityNotice>, pg: Pg) -> Self {
+        SecNoticeWorker {
             receiver,
             pg: Arc::new(pg),
         }
@@ -34,8 +33,8 @@ impl Worker {
                     log::error!("Failed to store vuln information: {:?}", e);
                     continue;
                 }
-                Ok((id, as_new_vuln)) => {
-                    if as_new_vuln {
+                Ok((id, created)) => {
+                    if created {
                         self.ding_bot_push(id).await?;
                     }
                 }
@@ -54,24 +53,26 @@ impl Worker {
         if let Some(config) = ding_bot_config
             && config.status
         {
-            let vuln = VulnInformationDao::fetch_by_id(&mut tx, id).await?;
-            if let Some(v) = vuln
-                && !v.pushed
+            let sec_notice = SecurityNoticeDao::fetch_by_id(&mut tx, id).await?;
+            if let Some(s) = sec_notice
+                && !s.pushed
             {
                 let ding = DingBot::try_new(config.access_token, config.secret_token)?;
-                let title = v.title.clone();
-                let msg = match render_vulninfo(v) {
+                let title = s.title.clone();
+                let msg = match render_sec_notice(s) {
                     Ok(msg) => msg,
                     Err(e) => {
-                        log::error!("Failed to read vuln info: {:?}", e);
-                        return Err(
-                            Error::Message(format!("Failed to read vuln info: {:?}", e)).into()
-                        );
+                        log::error!("Failed to render sec notice: {:?}", e);
+                        return Err(Error::Message(format!(
+                            "Failed to render sec notice: {:?}",
+                            e
+                        ))
+                        .into());
                     }
                 };
                 ding.push_markdown(title, msg).await?;
                 log::info!("ding bot push success! id: {}", id);
-                VulnInformationDao::update_pushed(&mut tx, id, true).await?;
+                SecurityNoticeDao::update_pushed(&mut tx, id, true).await?;
             }
         } else {
             log::info!("ding bot config not found or status is false");
@@ -82,22 +83,23 @@ impl Worker {
         Ok(())
     }
 
-    pub async fn store(&self, mut req: CreateVulnInformation) -> AppResult<(i64, bool)> {
+    pub async fn store(&self, req: CreateSecurityNotice) -> AppResult<(i64, bool)> {
         let mut tx =
             self.pg.pool.begin().await.change_context_lazy(|| {
                 Error::Message("failed to begin transaction".to_string())
             })?;
-        if VulnInformationDao::fetch_by_key(&mut tx, &req.key)
-            .await?
-            .is_none()
-            && !req.cve.is_empty()
-        {
-            req.github_search = search_github_poc(&req.cve).await;
-        }
-        let (id, as_new_vuln) = VulnInformationDao::create_or_update(&mut tx, req).await?;
+        let res = SecurityNoticeDao::fetch_by_key(&mut tx, &req.key).await?;
+        let (id, created) = match res {
+            None => {
+                let id = SecurityNoticeDao::create(&mut tx, req).await?;
+                (id, true)
+            }
+            Some(sec_notice) => (sec_notice.id, false),
+        };
+
         tx.commit()
             .await
             .change_context_lazy(|| Error::Message("failed to commit transaction".to_string()))?;
-        Ok((id, as_new_vuln))
+        Ok((id, created))
     }
 }

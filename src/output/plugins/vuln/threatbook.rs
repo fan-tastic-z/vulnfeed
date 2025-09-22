@@ -8,7 +8,7 @@ use crate::{
     AppResult,
     domain::models::vuln_information::{CreateVulnInformation, Severity},
     errors::Error,
-    output::plugins::{VulnPlugin, register_plugin},
+    output::plugins::vuln::{VulnPlugin, register_plugin},
     utils::{http_client::HttpClient, util::check_over_two_month},
 };
 

@@ -5,6 +5,7 @@ use crate::{
             admin_user::AdminUser,
             auth::LoginRequest,
             ding_bot::{CreateDingBotRequest, DingBotConfig},
+            security_notice::{ListSecNoticeRequest, ListSecNoticeResponseData},
             sync_data_task::{CreateSyncDataTaskRequest, SyncDataTask},
             vuln_information::{
                 GetVulnInformationRequest, ListVulnInformationRequest,
@@ -73,6 +74,14 @@ where
 
     async fn create_ding_bot_config(&self, req: CreateDingBotRequest) -> AppResult<i64> {
         let ret = self.repo.create_ding_bot_config(req).await?;
+        Ok(ret)
+    }
+
+    async fn list_sec_notice(
+        &self,
+        req: ListSecNoticeRequest,
+    ) -> AppResult<ListSecNoticeResponseData> {
+        let ret = self.repo.list_sec_notice(req).await?;
         Ok(ret)
     }
 }

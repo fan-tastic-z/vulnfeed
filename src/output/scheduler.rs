@@ -10,7 +10,10 @@ use crate::{
     errors::Error,
     output::{
         db::{pg::Pg, sync_data_task::SyncDataTaskDao},
-        plugins::{get_registry, list_plugin_names},
+        plugins::{
+            sec_notice::{get_notice_registry, list_sec_notice_names},
+            vuln::{get_registry, list_plugin_names},
+        },
     },
 };
 
@@ -151,6 +154,21 @@ async fn execute_job(_uuid: Uuid) {
             }
         });
     }
+
+    let sec_notices = list_sec_notice_names();
+    for name in sec_notices {
+        job_set.spawn(async move {
+            let notice = get_notice_registry();
+            log::info!("Updating sec notice: {}", name);
+            if let Some(notice) = notice.get::<str>(&name)
+                && let Err(e) = notice.update(1).await
+            {
+                log::error!("Sec notice update failed for {}: {}", name, e)
+            }
+        });
+    }
+
     job_set.join_all().await;
+
     log::info!("Plugin syn finished elapsed {:?}", start.elapsed());
 }
