@@ -140,6 +140,7 @@ fn api_routes<S: VulnService + Send + Sync + 'static>() -> impl Endpoint {
                         ),
                 )
                 .nest("/plugins", Route::new().at("", get(plugin::list_plugins)))
+                .nest("/notices", Route::new().at("", get(plugin::list_notice)))
                 .nest(
                     "/sync_data_task",
                     Route::new().at(

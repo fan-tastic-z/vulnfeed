@@ -27,6 +27,7 @@ pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
 #[async_trait]
 pub trait SecNoticePlugin: Send + Sync + 'static {
     fn get_name(&self) -> String;
+    fn get_link(&self) -> String;
     async fn update(&self, page_limit: i32) -> AppResult<()>;
 }
 

@@ -29,6 +29,10 @@ impl SecNoticePlugin for YongYouNoticePlugin {
         self.name.to_string()
     }
 
+    fn get_link(&self) -> String {
+        self.link.to_string()
+    }
+
     async fn update(&self, _page_limit: i32) -> AppResult<()> {
         let sec_notices = self
             .get_sec_notices(YONGYOU_DEFAULT_PAGE_NO, YONGYOU_DEFAULT_PAGE_SIZE)

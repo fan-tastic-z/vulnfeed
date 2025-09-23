@@ -26,6 +26,10 @@ impl SecNoticePlugin for WeaverNoticePlugin {
         self.name.to_string()
     }
 
+    fn get_link(&self) -> String {
+        self.link.to_string()
+    }
+
     async fn update(&self, _page_limit: i32) -> AppResult<()> {
         let patches = self.parse_security_notices().await?;
         if patches.len() < 3 {
