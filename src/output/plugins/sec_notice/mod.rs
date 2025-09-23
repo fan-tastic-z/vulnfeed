@@ -1,3 +1,4 @@
+pub mod weaver;
 pub mod yongyou;
 
 use std::sync::Arc;
@@ -8,8 +9,9 @@ use lazy_static::lazy_static;
 use mea::mpsc::UnboundedSender;
 
 use crate::{
-    AppResult, domain::models::security_notice::CreateSecurityNotice,
-    output::plugins::sec_notice::yongyou::YongYouNoticePlugin,
+    AppResult,
+    domain::models::security_notice::CreateSecurityNotice,
+    output::plugins::sec_notice::{weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin},
 };
 
 lazy_static! {
@@ -18,6 +20,7 @@ lazy_static! {
 
 pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
     YongYouNoticePlugin::try_new(sender.clone())?;
+    WeaverNoticePlugin::try_new(sender.clone())?;
     Ok(())
 }
 

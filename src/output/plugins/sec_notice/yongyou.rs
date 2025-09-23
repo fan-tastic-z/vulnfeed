@@ -66,8 +66,8 @@ impl YongYouNoticePlugin {
         sender: UnboundedSender<CreateSecurityNotice>,
     ) -> AppResult<YongYouNoticePlugin> {
         let http_client = HttpClient::try_new()?;
-        let yongyou = YongYouNoticePlugin {
-            name: "YongYouPlugin".to_string(),
+        let yongyou: YongYouNoticePlugin = YongYouNoticePlugin {
+            name: "YongYouNotice".to_string(),
             link: "https://security.yonyou.com/#/home".to_string(),
             http_client,
             sender,
