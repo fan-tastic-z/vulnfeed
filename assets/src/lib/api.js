@@ -104,4 +104,9 @@ export const getSecNotices = (params) => {
     })
 }
 
+// 获取安全公告来源列表
+export const getNoticeSources = () => {
+    return api.get('/notices')
+}
+
 export default api

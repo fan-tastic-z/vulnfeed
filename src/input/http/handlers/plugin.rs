@@ -29,6 +29,7 @@ pub async fn list_plugins() -> Result<ApiSuccess<Vec<PluginData>>, ApiError> {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct NoticeData {
     pub name: String,
+    pub display_name: String,
     pub link: String,
 }
 
@@ -39,6 +40,7 @@ pub async fn list_notice() -> Result<ApiSuccess<Vec<NoticeData>>, ApiError> {
         .map(|plugin| NoticeData {
             name: plugin.get_name(),
             link: plugin.get_link(),
+            display_name: plugin.get_display_name(),
         })
         .collect::<Vec<_>>();
     Ok(ApiSuccess::new(StatusCode::OK, res))

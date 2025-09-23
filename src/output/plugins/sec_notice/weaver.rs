@@ -15,6 +15,7 @@ const PATCH_LINKS: &str = "https://www.weaver.com.cn/cs/securityDownload.html?sr
 #[derive(Debug, Clone)]
 pub struct WeaverNoticePlugin {
     name: String,
+    display_name: String,
     link: String,
     http_client: HttpClient,
     sender: UnboundedSender<CreateSecurityNotice>,
@@ -24,6 +25,10 @@ pub struct WeaverNoticePlugin {
 impl SecNoticePlugin for WeaverNoticePlugin {
     fn get_name(&self) -> String {
         self.name.to_string()
+    }
+
+    fn get_display_name(&self) -> String {
+        self.display_name.to_string()
     }
 
     fn get_link(&self) -> String {
@@ -69,7 +74,8 @@ impl WeaverNoticePlugin {
     pub fn try_new(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<WeaverNoticePlugin> {
         let http_client = HttpClient::try_new()?;
         let weaver = WeaverNoticePlugin {
-            name: "WeaverNotice".to_string(),
+            name: "WeaverPlugin".to_string(),
+            display_name: "泛微ECOLOGY安全补丁包".to_string(),
             link: PATCH_LINKS.to_string(),
             http_client,
             sender,
