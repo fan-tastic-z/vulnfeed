@@ -109,4 +109,9 @@ export const getNoticeSources = () => {
     return api.get('/notices')
 }
 
+// 获取安全公告插件列表
+export const getNoticePlugins = () => {
+    return api.get('/notices')
+}
+
 export default api
