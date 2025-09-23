@@ -18,6 +18,7 @@ const YONGYOU_DEFAULT_PAGE_SIZE: i32 = 3;
 #[derive(Debug, Clone)]
 pub struct YongYouNoticePlugin {
     name: String,
+    display_name: String,
     link: String,
     http_client: HttpClient,
     sender: UnboundedSender<CreateSecurityNotice>,
@@ -27,6 +28,14 @@ pub struct YongYouNoticePlugin {
 impl SecNoticePlugin for YongYouNoticePlugin {
     fn get_name(&self) -> String {
         self.name.to_string()
+    }
+
+    fn get_link(&self) -> String {
+        self.link.to_string()
+    }
+
+    fn get_display_name(&self) -> String {
+        self.display_name.to_string()
     }
 
     async fn update(&self, _page_limit: i32) -> AppResult<()> {
@@ -66,8 +75,9 @@ impl YongYouNoticePlugin {
         sender: UnboundedSender<CreateSecurityNotice>,
     ) -> AppResult<YongYouNoticePlugin> {
         let http_client = HttpClient::try_new()?;
-        let yongyou = YongYouNoticePlugin {
+        let yongyou: YongYouNoticePlugin = YongYouNoticePlugin {
             name: "YongYouPlugin".to_string(),
+            display_name: "用友安全中心".to_string(),
             link: "https://security.yonyou.com/#/home".to_string(),
             http_client,
             sender,

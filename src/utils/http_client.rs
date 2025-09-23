@@ -69,4 +69,14 @@ impl HttpClient {
             .change_context_lazy(|| Error::Message("Failed to send HTTP request".to_string()))?;
         Ok(content)
     }
+
+    pub async fn get(&self, url: &str) -> AppResult<reqwest::Response> {
+        let content = self
+            .http_client
+            .get(url)
+            .send()
+            .await
+            .change_context_lazy(|| Error::Message("Failed to send HTTP request".to_string()))?;
+        Ok(content)
+    }
 }

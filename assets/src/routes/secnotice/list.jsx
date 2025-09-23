@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getSecNotices, getPlugins } from '../../lib/api'
+import { getSecNotices, getNoticeSources } from '../../lib/api'
 
 const SecNoticeListPage = () => {
   const [secNotices, setSecNotices] = useState([])
@@ -9,28 +9,28 @@ const SecNoticeListPage = () => {
   const [pageNo, setPageNo] = useState(1)
   const [pageSize] = useState(10)
   const [totalCount, setTotalCount] = useState(0)
-  const [plugins, setPlugins] = useState([])
+  const [sources, setSources] = useState([])
   // 新的筛选条件状态
   const [filters, setFilters] = useState({
     title: '',
     pushed: '',
-    source_name: ''  // 存储插件的name字段
+    source_name: ''  // 存储来源的name字段
   })
 
   useEffect(() => {
-    fetchPlugins()
+    fetchSources()
   }, [])
 
   useEffect(() => {
     fetchSecNotices()
   }, [pageNo, filters])
 
-  const fetchPlugins = async () => {
+  const fetchSources = async () => {
     try {
-      const response = await getPlugins()
-      setPlugins(response.data.data)
+      const response = await getNoticeSources()
+      setSources(response.data.data)
     } catch (err) {
-      console.error('获取插件列表失败:', err)
+      console.error('获取公告来源列表失败:', err)
     }
   }
 
@@ -150,14 +150,14 @@ const SecNoticeListPage = () => {
             <select
               name="source"
               id="source"
-              value={filters.source}
+              value={filters.source_name}
               onChange={handleSourceFilterChange}
               className="block w-full px-3 py-2 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
               <option value="">全部</option>
-              {plugins.map((plugin) => (
-                <option key={plugin.name} value={plugin.name}>
-                  {plugin.display_name}
+              {sources.map((source) => (
+                <option key={source.name} value={source.name}>
+                  {source.display_name}
                 </option>
               ))}
             </select>
