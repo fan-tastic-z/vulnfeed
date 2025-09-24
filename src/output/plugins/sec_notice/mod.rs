@@ -1,3 +1,4 @@
+pub mod smartbi;
 pub mod weaver;
 pub mod yongyou;
 
@@ -11,7 +12,9 @@ use mea::mpsc::UnboundedSender;
 use crate::{
     AppResult,
     domain::models::security_notice::CreateSecurityNotice,
-    output::plugins::sec_notice::{weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin},
+    output::plugins::sec_notice::{
+        smartbi::SmartbiNoticePlugin, weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
+    },
 };
 
 lazy_static! {
@@ -21,6 +24,7 @@ lazy_static! {
 pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
     YongYouNoticePlugin::try_new(sender.clone())?;
     WeaverNoticePlugin::try_new(sender.clone())?;
+    SmartbiNoticePlugin::try_new(sender)?;
     Ok(())
 }
 
