@@ -22,6 +22,7 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 | 用友安全中心          | <https://security.yonyou.com/#/home>                        | 近三条数据                                         |
 | 泛微ECOLOGY安全补丁包 | <https://www.weaver.com.cn/cs/securityDownload.html?src=cn> | "EC9.0全量补丁", "EC8.0全量补丁", "EC10.0安全补丁" |
 | Smartbi安全补丁包     | <https://www.smartbi.com.cn/patchinfo>                      | 近三条数据                                         |
+| 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>    | 近三条数据                                         |
 
 ![app](./images/app.jpg)
 
