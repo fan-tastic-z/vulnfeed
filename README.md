@@ -17,12 +17,13 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 
 当抓取安全补丁公告的站点数据：
 
-| 名称                  | 地址                                                        | 推送策略                                           |
-| --------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
-| 用友安全中心          | <https://security.yonyou.com/#/home>                        | 近三条数据                                         |
-| 泛微ECOLOGY安全补丁包 | <https://www.weaver.com.cn/cs/securityDownload.html?src=cn> | "EC9.0全量补丁", "EC8.0全量补丁", "EC10.0安全补丁" |
-| Smartbi安全补丁包     | <https://www.smartbi.com.cn/patchinfo>                      | 近三条数据                                         |
-| 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>    | 近三条数据                                         |
+| 名称                  | 地址                                                                                                 | 推送策略                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 用友安全中心          | <https://security.yonyou.com/#/home>                                                                 | 近三条数据                                         |
+| 泛微ECOLOGY安全补丁包 | <https://www.weaver.com.cn/cs/securityDownload.html?src=cn>                                          | "EC9.0全量补丁", "EC8.0全量补丁", "EC10.0安全补丁" |
+| Smartbi安全补丁包     | <https://www.smartbi.com.cn/patchinfo>                                                               | 近三条数据                                         |
+| 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>                                             | 近三条数据                                         |
+| 致远安全补丁          | <https://service.seeyon.com/patchtools/tp.html#/patchList?type=%E5%AE%89%E5%85%A8%E8%A1%A5%E4%B8%81> | V5的近三条数据                                     |
 
 ![app](./images/app.jpg)
 
