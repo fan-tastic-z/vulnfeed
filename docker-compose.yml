@@ -23,7 +23,7 @@ services:
     privileged: true
 
   vulnfeed:
-    image: vulnfeed:latest
+    image: fantasticzf/vulnfeed:latest
     restart: always
     depends_on:
       - postgres
