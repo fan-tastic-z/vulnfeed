@@ -63,7 +63,9 @@ FROM alpine:latest
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 
 # Install runtime dependencies
-RUN apk add --no-cache ca-certificates wget
+RUN apk add --no-cache ca-certificates wget curl tzdata  \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone
 
 WORKDIR /app
 
