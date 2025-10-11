@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.8"  # 建议使用 3.8 或更高版本以支持完整的健康检查条件
 
 services:
   postgres:
@@ -19,14 +19,22 @@ services:
     volumes:
       - "./data/:/var/lib/postgresql/data/"
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
     privileged: true
+    # 新增健康检查
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vulnfeed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   vulnfeed:
     image: fantasticzf/vulnfeed:latest
     restart: always
     depends_on:
-      - postgres
+      postgres: 
+        condition: service_healthy  # 关键修改：等待Postgres健康状态
     volumes:
       - "./config/config.toml:/app/config.toml"
     privileged: true
