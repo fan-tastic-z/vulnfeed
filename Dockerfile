@@ -74,7 +74,7 @@ COPY --from=backend-build /app/target/release/vulnfeed ./vulnfeed
 RUN chmod +x ./vulnfeed
 
 # Copy default config
-COPY dev/config.toml ./config.toml
+COPY dev/config.toml.example ./config.toml
 
 # Expose port
 EXPOSE 9000
