@@ -47,7 +47,7 @@ impl SecNoticePlugin for VmwareNoticePlugin {
                 let create_security_notice = CreateSecurityNotice {
                     key: item.document_id,
                     title: item.title,
-                    product_name: "VMware Tanzu".to_string(),
+                    product_name: item.support_products,
                     risk_level: self.get_risk_level(&item.severity).to_string(),
                     source: self.link.clone(),
                     source_name: self.get_name(),
@@ -134,6 +134,7 @@ pub struct SecurityAdvisory {
     pub severity: String,
     pub updated: String,
     pub notification_url: String,
+    pub support_products: String,
 }
 
 #[cfg(test)]
