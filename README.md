@@ -25,6 +25,7 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 | 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>                                             | 近三条数据                                         |
 | 致远安全补丁          | <https://service.seeyon.com/patchtools/tp.html#/patchList?type=%E5%AE%89%E5%85%A8%E8%A1%A5%E4%B8%81> | V5的近三条数据                                     |
 | Vmware安全公告        | <https://support.broadcom.com/web/ecx/security-advisory?>                                            | 近十条数据                                         |
+| Oracle安全公告        | <https://www.oracle.com/cn/security-alerts/>                                                         | 近三条数据                                         |
 
 ![app](./images/app.jpg)
 
