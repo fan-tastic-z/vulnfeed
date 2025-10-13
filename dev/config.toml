@@ -7,7 +7,7 @@ secret = "LSJ74YUWkzGheiWMRxcH" # for development
 expiration = 604800             # 7 days
 
 [database]
-host = "127.0.0.1"
+host = "postgres"
 port = 5432
 username = "postgres"
 password = "YSm*wF60c72CLJD!"

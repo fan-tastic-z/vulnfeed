@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.8"
 
 services:
   postgres:
@@ -19,14 +19,21 @@ services:
     volumes:
       - "./data/:/var/lib/postgresql/data/"
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
     privileged: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vulnfeed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   vulnfeed:
     image: fantasticzf/vulnfeed:latest
     restart: always
     depends_on:
-      - postgres
+      postgres: 
+        condition: service_healthy
     volumes:
       - "./config/config.toml:/app/config.toml"
     privileged: true

@@ -105,5 +105,5 @@ mkdir /data/vulnfeed/config -p
 
 ```bash
 docker-compose up -d
-docker exec CONTAINER_NAME /app/vulnfeed create-super-user -c /app/vulnfeed/config.toml -p "密码"
+docker exec CONTAINER_NAME /app/vulnfeed create-super-user -c /app/config.toml -p "密码"
 ```
