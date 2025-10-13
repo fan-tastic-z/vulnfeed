@@ -1,6 +1,7 @@
 pub mod fanruan;
 pub mod seeyon;
 pub mod smartbi;
+pub mod vmware;
 pub mod weaver;
 pub mod yongyou;
 
@@ -16,7 +17,7 @@ use crate::{
     domain::models::security_notice::CreateSecurityNotice,
     output::plugins::sec_notice::{
         fanruan::FanRuanNoticePlugin, seeyon::SeeyonNoticePlugin, smartbi::SmartbiNoticePlugin,
-        weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
+        vmware::VmwareNoticePlugin, weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
     },
 };
 
@@ -30,6 +31,7 @@ pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
     SmartbiNoticePlugin::try_new(sender.clone())?;
     FanRuanNoticePlugin::try_new(sender.clone())?;
     SeeyonNoticePlugin::try_new(sender.clone())?;
+    VmwareNoticePlugin::try_new(sender.clone())?;
     Ok(())
 }
 
