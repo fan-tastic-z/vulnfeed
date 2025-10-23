@@ -17,17 +17,18 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 
 当抓取安全补丁公告的站点数据：
 
-| 名称                  | 地址                                                                                                 | 推送策略                                           |
-| --------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| 用友安全中心          | <https://security.yonyou.com/#/home>                                                                 | 近三条数据                                         |
-| 泛微ECOLOGY安全补丁包 | <https://www.weaver.com.cn/cs/securityDownload.html?src=cn>                                          | "EC9.0全量补丁", "EC8.0全量补丁", "EC10.0安全补丁" |
-| Smartbi安全补丁包     | <https://www.smartbi.com.cn/patchinfo>                                                               | 近三条数据                                         |
-| 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>                                             | 近三条数据                                         |
-| 致远安全补丁          | <https://service.seeyon.com/patchtools/tp.html#/patchList?type=%E5%AE%89%E5%85%A8%E8%A1%A5%E4%B8%81> | V5的近三条数据                                     |
-| Vmware安全公告        | <https://support.broadcom.com/web/ecx/security-advisory?>                                            | 近十条数据                                         |
-| Oracle安全公告        | <https://www.oracle.com/cn/security-alerts/>                                                         | 近三条数据                                         |
-| Firefox安全公告       | <https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/>                              | 近三条数据                                         |
-| Apple安全公告         | <https://support.apple.com/zh-cn/100100>                                                             | 近十条数，不包含没有链接的据                       |
+| 名称                  | 地址                                                                                                 | 推送策略                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 用友安全中心          | <https://security.yonyou.com/#/home>                                                                 | 近三条数据                                                                       |
+| 泛微ECOLOGY安全补丁包 | <https://www.weaver.com.cn/cs/securityDownload.html?src=cn>                                          | "EC9.0全量补丁", "EC8.0全量补丁", "EC10.0安全补丁"                               |
+| Smartbi安全补丁包     | <https://www.smartbi.com.cn/patchinfo>                                                               | 近三条数据                                                                       |
+| 帆软安全漏洞声明      | <https://help.fanruan.com/finereport/doc-view-4833.html>                                             | 近三条数据                                                                       |
+| 致远安全补丁          | <https://service.seeyon.com/patchtools/tp.html#/patchList?type=%E5%AE%89%E5%85%A8%E8%A1%A5%E4%B8%81> | V5的近三条数据                                                                   |
+| Vmware安全公告        | <https://support.broadcom.com/web/ecx/security-advisory?>                                            | 近十条数据                                                                       |
+| Oracle安全公告        | <https://www.oracle.com/cn/security-alerts/>                                                         | 近三条数据                                                                       |
+| Firefox安全公告       | <https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/>                              | 近三条数据                                                                       |
+| Apple安全公告         | <https://support.apple.com/zh-cn/100100>                                                             | 近十条数，不包含没有链接的据                                                     |
+| Grafana安全公告       | <https://grafana.com/tags/security/>                                                                 | 第一页数据中以"Grafana security release" 或 "Grafana security update" 开头的公告 |
 
 ![app](./images/app.jpg)
 
