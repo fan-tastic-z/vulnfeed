@@ -1,3 +1,4 @@
+pub mod apple;
 pub mod fanruan;
 pub mod firefox;
 pub mod oracle;
@@ -18,9 +19,9 @@ use crate::{
     AppResult,
     domain::models::security_notice::CreateSecurityNotice,
     output::plugins::sec_notice::{
-        fanruan::FanRuanNoticePlugin, firefox::FirefoxNoticePlugin, oracle::OracleNoticePlugin,
-        seeyon::SeeyonNoticePlugin, smartbi::SmartbiNoticePlugin, vmware::VmwareNoticePlugin,
-        weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
+        apple::AppleNoticePlugin, fanruan::FanRuanNoticePlugin, firefox::FirefoxNoticePlugin,
+        oracle::OracleNoticePlugin, seeyon::SeeyonNoticePlugin, smartbi::SmartbiNoticePlugin,
+        vmware::VmwareNoticePlugin, weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
     },
 };
 
@@ -37,6 +38,7 @@ pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
     VmwareNoticePlugin::try_new(sender.clone())?;
     OracleNoticePlugin::try_new(sender.clone())?;
     FirefoxNoticePlugin::try_new(sender.clone())?;
+    AppleNoticePlugin::try_new(sender.clone())?;
     Ok(())
 }
 
