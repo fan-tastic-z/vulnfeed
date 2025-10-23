@@ -27,6 +27,7 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 | Vmware安全公告        | <https://support.broadcom.com/web/ecx/security-advisory?>                                            | 近十条数据                                         |
 | Oracle安全公告        | <https://www.oracle.com/cn/security-alerts/>                                                         | 近三条数据                                         |
 | Firefox安全公告       | <https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/>                              | 近三条数据                                         |
+| Apple安全公告         | <https://support.apple.com/zh-cn/100100>                                                             | 近十条数，不包含没有链接的据                       |
 
 ![app](./images/app.jpg)
 
