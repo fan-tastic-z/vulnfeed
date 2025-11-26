@@ -6,6 +6,7 @@ pub mod oracle;
 pub mod sangfor;
 pub mod seeyon;
 pub mod smartbi;
+pub mod tongtech;
 pub mod vmware;
 pub mod weaver;
 pub mod yongyou;
@@ -23,8 +24,8 @@ use crate::{
     output::plugins::sec_notice::{
         apple::AppleNoticePlugin, fanruan::FanRuanNoticePlugin, firefox::FirefoxNoticePlugin,
         grafana::GrafanaNoticePlugin, oracle::OracleNoticePlugin, sangfor::SangforNoticePlugin,
-        seeyon::SeeyonNoticePlugin, smartbi::SmartbiNoticePlugin, vmware::VmwareNoticePlugin,
-        weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
+        seeyon::SeeyonNoticePlugin, smartbi::SmartbiNoticePlugin, tongtech::TongtechNoticePlugin,
+        vmware::VmwareNoticePlugin, weaver::WeaverNoticePlugin, yongyou::YongYouNoticePlugin,
     },
 };
 
@@ -44,6 +45,7 @@ pub fn init(sender: UnboundedSender<CreateSecurityNotice>) -> AppResult<()> {
     AppleNoticePlugin::try_new(sender.clone())?;
     GrafanaNoticePlugin::try_new(sender.clone())?;
     SangforNoticePlugin::try_new(sender.clone())?;
+    TongtechNoticePlugin::try_new(sender.clone())?;
     Ok(())
 }
 

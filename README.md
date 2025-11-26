@@ -30,6 +30,7 @@ VulnFeed 是一个用于收集和推送高价值漏洞和补丁公告信息的�
 | Apple安全公告         | <https://support.apple.com/zh-cn/100100>                                                             | 近十条数，不包含没有链接的据                                                     |
 | Grafana安全公告       | <https://grafana.com/tags/security/>                                                                 | 第一页数据中以"Grafana security release" 或 "Grafana security update" 开头的公告 |
 | 深信服安全公告        | <https://www.sangfor.com.cn/sec_center/bulletins>                                                    | 第一页数据前三条数据                                                             |
+| 东方通服安全公告      | <https://www.tongtech.com/dft/download.html>                                                         | 前三条数据                                                                       |
 
 ![app](./images/app.jpg)
 
